@@ -1,0 +1,774 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Koi &amp; Cosmos</title>
+<script src="astronomy.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3A2F55">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Koi &amp; Cosmos">
+<link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png">
+<style>body{margin:0;padding-top:max(32px,env(safe-area-inset-top))}</style>
+</head><body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&family=Zen+Maru+Gothic:wght@500;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Pisces sun: seafoam + lavender · Libra moon: rose + powder blue · Virgo rising: sage + taupe */
+:root{
+ --sky1:#CFE3F2;--sky2:#F6DDE4;--sky3:#FBEFE6;
+ --hillA:#B9CFB0;--hillB:#9DBB9A;--hillC:#7FA38A;
+ --glass:rgba(255,255,255,.52);--glass2:rgba(255,255,255,.34);--rim:rgba(255,255,255,.75);
+ --ink:#2F2C42;--muted:#6E6A80;--line:rgba(110,106,128,.18);
+ --accent:#8C7BC4;--seafoam:#7CC2B4;--rose:#E7A1B3;--powder:#9DB9DE;--taupe:#8A7F72;
+ --ok:#3E9A85;--warn:#C98A3A;--bad:#C45C78;--shadow:rgba(90,80,130,.14);--cloud:rgba(255,255,255,.9);
+ --panel:var(--glass)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --sky1:#1E2240;--sky2:#3A2F55;--sky3:#5A4466;--hillA:#2C3A45;--hillB:#233039;--hillC:#1A252D;
+ --glass:rgba(38,36,62,.55);--glass2:rgba(38,36,62,.38);--rim:rgba(200,190,240,.18);
+ --ink:#ECE8F7;--muted:#ABA5C4;--line:rgba(200,190,240,.14);
+ --accent:#B8A8F0;--seafoam:#86D3C3;--rose:#F0AFC1;--powder:#A9C4EC;--taupe:#B7AB9C;
+ --ok:#7CD3BC;--warn:#EDB872;--bad:#F08FA8;--shadow:rgba(0,0,0,.35);--cloud:rgba(210,200,240,.16)}}
+:root[data-theme="dark"]{
+ --sky1:#1E2240;--sky2:#3A2F55;--sky3:#5A4466;--hillA:#2C3A45;--hillB:#233039;--hillC:#1A252D;
+ --glass:rgba(38,36,62,.55);--glass2:rgba(38,36,62,.38);--rim:rgba(200,190,240,.18);
+ --ink:#ECE8F7;--muted:#ABA5C4;--line:rgba(200,190,240,.14);
+ --accent:#B8A8F0;--seafoam:#86D3C3;--rose:#F0AFC1;--powder:#A9C4EC;--taupe:#B7AB9C;
+ --ok:#7CD3BC;--warn:#EDB872;--bad:#F08FA8;--shadow:rgba(0,0,0,.35);--cloud:rgba(210,200,240,.16)}
+html{background:var(--sky1)}
+body{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%) fixed;color:var(--ink);font:15px/1.55 "Nunito Sans",system-ui,sans-serif;padding-inline:20px;padding-block:32px;min-height:100vh;box-sizing:border-box;position:relative;overflow-x:hidden}
+/* painted countryside scene */
+.scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sun{position:absolute;top:8%;right:12%;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,244,220,.95),rgba(255,214,200,.35) 45%,transparent 70%);animation:breathe 9s ease-in-out infinite}
+.cloud{position:absolute;background:var(--cloud);border-radius:999px;filter:blur(6px);animation:drift linear infinite}
+.cloud::before,.cloud::after{content:"";position:absolute;background:inherit;border-radius:50%}
+.cloud::before{width:55%;height:170%;left:14%;bottom:20%}.cloud::after{width:40%;height:140%;right:12%;bottom:25%}
+.c1{top:12%;width:260px;height:56px;animation-duration:120s;animation-delay:-30s}
+.c2{top:26%;width:180px;height:40px;animation-duration:160s;animation-delay:-90s;opacity:.8}
+.c3{top:6%;width:220px;height:48px;animation-duration:140s;animation-delay:-10s;opacity:.7}
+.hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:42vh}
+.grass{transform-origin:bottom;animation:sway 7s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#FFF1B8;box-shadow:0 0 10px 3px rgba(255,236,160,.7);opacity:0;animation:fly 8s ease-in-out infinite}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fly{opacity:.8}}
+:root[data-theme="dark"] .fly{opacity:.8}
+@keyframes drift{from{transform:translateX(-320px)}to{transform:translateX(110vw)}}
+@keyframes breathe{50%{transform:scale(1.08);opacity:.85}}
+@keyframes sway{50%{transform:skewX(2deg)}}
+@keyframes fly{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-24px)}}
+@keyframes rise{from{transform:translateY(14px)}to{transform:none}}
+@keyframes unfold{from{opacity:.2;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+h1{font:700 2.2rem/1.1 "Zen Maru Gothic",sans-serif;margin:0;letter-spacing:.01em;background:linear-gradient(90deg,var(--accent),var(--rose) 55%,var(--seafoam));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.sub{color:var(--muted);font-size:.85rem}
+/* glass surfaces */
+section,.sys{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid var(--rim);border-radius:22px;box-shadow:0 10px 30px -12px var(--shadow),inset 0 1px 0 var(--rim);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,background .35s}
+section{padding:22px;display:grid;gap:14px;align-content:start;animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.sys{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.sys:nth-child(1){animation-delay:.08s}.sys:nth-child(2){animation-delay:.16s}.sys:nth-child(3){animation-delay:.24s}.sys:nth-child(4){animation-delay:.32s}
+.sys:hover{transform:translateY(-2px);box-shadow:0 18px 40px -14px var(--shadow),inset 0 1px 0 var(--rim)}
+h2{font:500 .72rem/1 "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0;display:flex;gap:8px;align-items:center}
+.pill{font:500 .68rem/1 "IBM Plex Mono",monospace;padding:5px 9px;border-radius:99px;letter-spacing:.04em}
+.live{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok);animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--ok) 10%,transparent)}}
+.clock{font:700 3.2rem/1 "Zen Maru Gothic",sans-serif;font-variant-numeric:tabular-nums}
+.state{font-size:1.05rem;font-weight:600}
+.bar{height:12px;background:var(--glass2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--seafoam),var(--powder),var(--accent));border-radius:99px;transition:width 1s ease}
+.ticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+td,th{padding:10px 6px;border-bottom:1px solid var(--line);text-align:left}
+tbody tr{transition:background .25s}tbody tr:hover{background:var(--glass2)}
+th{font:500 .7rem "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;box-shadow:0 0 8px currentColor}
+.summary{display:flex;gap:22px;flex-wrap:wrap}
+.summary b,.kpis b{font:700 1.7rem "Zen Maru Gothic",sans-serif;display:block;font-variant-numeric:tabular-nums}
+.note{font-size:.8rem;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.kpis>div{background:var(--glass2);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.chk{display:grid;gap:8px;font-size:.85rem}
+.chk div{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline}
+.st{font:500 .66rem/1 "IBM Plex Mono",monospace;padding:5px 8px;border-radius:99px;letter-spacing:.04em}
+.st-PASS,.st-GO{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.st-WARN{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.st-BLOCK,.st-FAIL,.st-NO-GO{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.meter{position:relative;height:16px;background:var(--glass2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--seafoam),var(--accent));border-radius:99px;transition:width 1.2s ease}
+.meter s{position:absolute;top:0;bottom:0;width:2px;background:var(--rose)}
+svg text{fill:var(--muted);font:10px "IBM Plex Mono",monospace}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media (max-width:760px){.two{grid-template-columns:1fr}}
+.plist{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:.88rem}.plist li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.shift{display:flex;flex-wrap:wrap;gap:16px 40px;align-items:end}
+.shift .clock{font-size:2.6rem}.shiftbar{flex:1;min-width:220px;display:grid;gap:8px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar button{font:500 .75rem "IBM Plex Mono",monospace;background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--rim);color:var(--ink);border-radius:99px;padding:6px 12px;margin-left:6px;cursor:pointer;transition:background .25s,transform .2s}
+.toolbar button:hover{background:color-mix(in srgb,var(--accent) 22%,var(--glass));transform:translateY(-1px)}
+.toolbar button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.systems{display:grid;gap:14px}
+.sys summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"nm hl chip";gap:14px;align-items:center;padding:16px 20px}
+.sys summary::-webkit-details-marker{display:none}
+.nm{grid-area:nm;font:700 1.08rem "Zen Maru Gothic",sans-serif;display:flex;align-items:center;gap:10px}
+.nm::before{content:"›";display:inline-block;color:var(--accent);transition:transform .3s cubic-bezier(.2,.8,.2,1);font-family:"IBM Plex Mono",monospace}
+.sys[open] .nm::before{transform:rotate(90deg)}
+.hl{grid-area:hl;color:var(--muted);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.chip{grid-area:chip;font:500 .68rem/1 "IBM Plex Mono",monospace;padding:6px 10px;border-radius:99px;letter-spacing:.04em;background:var(--glass2);color:var(--muted);transition:background .4s,color .4s}
+.chip.ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.chip.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.chip.bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.sys summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:22px}
+.sys .body{display:grid;gap:14px;padding:16px 20px 20px;border-top:1px solid var(--line)}
+.sys[open] .body{animation:unfold .45s cubic-bezier(.2,.8,.2,1)}
+@media (max-width:560px){.sys summary{grid-template-columns:1fr auto;grid-template-areas:"nm chip" "hl hl";gap:6px 10px}.hl{white-space:normal}}
+.walk{display:grid;grid-template-columns:auto 1fr;gap:18px 32px;align-items:center}
+@media (max-width:620px){.walk{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.pond{position:relative;width:230px;max-width:100%;aspect-ratio:1}
+.pond svg{width:100%;height:100%;display:block}
+.pond .t{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+.pond .t b{font:700 2.1rem/1 "Zen Maru Gothic",sans-serif;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 1px 10px var(--glass)}
+.pond .t small{font:500 .66rem "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+#wring{transition:stroke-dashoffset .9s linear}
+.ripple{fill:none;stroke:var(--rim);stroke-width:.6;animation:rip 5s ease-out infinite;transform-origin:60px 60px}
+@keyframes rip{from{transform:scale(.3);opacity:.9}to{transform:scale(1);opacity:0}}
+.wside{display:grid;gap:12px}
+.wside .big{font:700 1.5rem "Zen Maru Gothic",sans-serif}
+.wbtns{display:flex;gap:10px;flex-wrap:wrap}
+.wbtns button{font:700 1rem "Zen Maru Gothic",sans-serif;border:1px solid var(--rim);border-radius:99px;padding:11px 28px;cursor:pointer;background:linear-gradient(135deg,var(--seafoam),var(--accent));color:#fff;transition:transform .2s,box-shadow .3s;box-shadow:0 8px 20px -10px var(--accent)}
+.wbtns button.sec{background:var(--glass2);color:var(--ink);box-shadow:none;font-weight:500}
+.wbtns button:hover{transform:translateY(-1px)}
+.wbtns button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.walking #wring{stroke:var(--rose)}
+.sleep{display:grid;gap:14px}
+.srow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.srow label{font-size:.85rem;color:var(--muted)}
+.srow input[type=time],.srow select{font:600 1.1rem "Zen Maru Gothic",sans-serif;padding:10px 14px;border-radius:14px;border:1px solid var(--rim);background:var(--glass2);color:var(--ink)}
+.sbtn{font:700 1rem "Zen Maru Gothic",sans-serif;border:1px solid var(--rim);border-radius:99px;padding:11px 24px;cursor:pointer;background:var(--glass2);color:var(--ink);transition:transform .2s}
+.sbtn.pri{background:linear-gradient(135deg,var(--powder),var(--accent));color:#fff}
+.sbtn:hover{transform:translateY(-1px)}.sbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+#sstat{font:500 .9rem "IBM Plex Mono",monospace;color:var(--muted)}
+#ring{position:fixed;inset:0;z-index:50;display:grid;place-content:center;gap:22px;text-align:center;padding:24px;background:linear-gradient(180deg,rgba(30,34,64,.92),rgba(90,68,102,.92));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#F6F1FF}
+[hidden]{display:none!important}
+#ring h3{font:700 2.4rem "Zen Maru Gothic",sans-serif;margin:0}
+#ring p{margin:0;opacity:.85}
+#ring .sbtn{font-size:1.3rem;padding:18px 44px}
+#ringStop{background:linear-gradient(135deg,#F0AFC1,#B8A8F0);color:#2F2C42}
+.glow{width:140px;height:140px;margin:0 auto;border-radius:50%;background:radial-gradient(circle,#FFE9B8,rgba(255,200,170,.3) 55%,transparent 70%);animation:breathe 6s ease-in-out infinite}
+.aff{display:grid;gap:8px}
+.aff blockquote{margin:0;font:600 1.25rem/1.4 "Zen Maru Gothic",sans-serif;text-wrap:balance}
+.aff .meta{display:flex;gap:8px;flex-wrap:wrap}
+.chipx{font:500 .7rem "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:var(--glass2);border:1px solid var(--rim);color:var(--muted)}
+.cosmic{display:grid;gap:14px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cgrid label{display:grid;gap:6px;font-size:.8rem;color:var(--muted)}
+.cgrid select{font:600 1rem "Zen Maru Gothic",sans-serif;padding:10px 12px;border-radius:14px;border:1px solid var(--rim);background:var(--glass2);color:var(--ink)}
+.cgrid input{font:600 1rem "Zen Maru Gothic",sans-serif;padding:10px 12px;border-radius:14px;border:1px solid var(--rim);background:var(--glass2);color:var(--ink);min-width:0}
+.big3{display:flex;gap:10px;flex-wrap:wrap}
+.big3 span{font:700 1rem "Zen Maru Gothic",sans-serif;padding:10px 14px;border-radius:14px;background:var(--glass2);border:1px solid var(--rim)}
+.big3 small{display:block;font:500 .65rem "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.houses{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-top:10px}
+.houses div{font-size:.82rem;padding:6px 10px;border-radius:10px;background:var(--glass2);border:1px solid var(--line)}
+.houses b{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--muted);margin-right:6px}
+#cosSum{margin:0;color:var(--ink)}
+.cosbtns{display:flex;gap:10px;flex-wrap:wrap}
+.cossum{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cossum::-webkit-details-marker{display:none}
+.cossum h2::after{content:"›";display:inline-block;margin-left:8px;transition:transform .3s;color:var(--accent);font-size:1rem}
+#cosDet[open] .cossum h2::after{transform:rotate(90deg)}
+.cosbody{display:grid;gap:14px;margin-top:14px;animation:unfold .45s cubic-bezier(.2,.8,.2,1)}
+select,input[type=date],input[type=time]{color-scheme:light}
+@media (prefers-color-scheme:dark){select,input[type=date],input[type=time]{color-scheme:dark}}
+select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--accent) 50%),linear-gradient(135deg,var(--accent) 50%,transparent 50%)!important;background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%!important;background-size:5px 5px!important;background-repeat:no-repeat!important;padding-right:34px!important}
+select option{background:var(--sky2);color:var(--ink)}
+select:focus-visible,.cgrid input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* element scenes */
+.pts{position:absolute;inset:0;overflow:hidden}
+.pt{position:absolute;opacity:0}
+.el-fire .pt{width:6px;height:6px;border-radius:50%;background:#FFC37A;box-shadow:0 0 10px 3px rgba(255,150,80,.7);animation:ember linear infinite}
+.el-earth .pt{width:12px;height:7px;border-radius:70% 0;background:var(--hillB);animation:leaf linear infinite}
+.el-air .pt{width:9px;height:9px;border-radius:60% 0 60% 0;background:var(--rose);opacity:.8;animation:petal linear infinite}
+.el-water .pt{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.7);animation:bubble linear infinite}
+@keyframes ember{0%{transform:translateY(0);opacity:0}10%{opacity:1}100%{transform:translate(30px,-70vh);opacity:0}}
+@keyframes leaf{0%{transform:translate(0,-10vh) rotate(0);opacity:0}10%{opacity:.9}100%{transform:translate(-60px,100vh) rotate(540deg);opacity:0}}
+@keyframes petal{0%{transform:translate(-10vw,0) rotate(0);opacity:0}10%{opacity:.85}100%{transform:translate(110vw,-20vh) rotate(720deg);opacity:0}}
+@keyframes bubble{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.8}100%{transform:translate(12px,-60vh) scale(1.2);opacity:0}}
+.el-fire .sun{background:radial-gradient(circle,rgba(255,210,150,.95),rgba(255,120,80,.35) 45%,transparent 70%);width:190px;height:190px}
+.el-water .sun{background:radial-gradient(circle,rgba(220,240,255,.9),rgba(150,200,240,.3) 45%,transparent 70%)}
+.el-air .cloud{animation-duration:60s!important}
+.el-water .hills{animation:waves 6s ease-in-out infinite}
+@keyframes waves{50%{transform:translateY(8px) scaleY(1.04)}}
+.shiftbox{display:grid;grid-template-columns:1fr auto;gap:16px 24px;align-items:center}
+@media (max-width:620px){.shiftbox{grid-template-columns:1fr}}
+.bigclock{font:700 clamp(2.4rem,8vw,3.4rem)/1 "Zen Maru Gothic",sans-serif;font-variant-numeric:tabular-nums}
+#shState{font-weight:600}
+.dash{display:grid;gap:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--glass2);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:2px}
+.tile b{font:700 1.6rem "Zen Maru Gothic",sans-serif;font-variant-numeric:tabular-nums}
+.tile small{font:500 .66rem "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tile span{font-size:.8rem;color:var(--muted)}
+#wk{width:100%;height:auto;max-width:560px}
+#wk text{fill:var(--muted);font:10px "IBM Plex Mono",monospace}
+.dtabs{display:flex;gap:6px;flex-wrap:wrap}
+.dtabs button{font:500 .75rem "IBM Plex Mono",monospace;border:1px solid var(--rim);background:var(--glass2);color:var(--ink);border-radius:99px;padding:6px 12px;cursor:pointer}
+.dtabs button[aria-pressed=true]{background:var(--accent);color:#fff}
+.focus{display:grid;gap:12px}
+.tracks{display:grid;gap:6px}
+.tracks button{display:flex;justify-content:space-between;gap:10px;text-align:left;font:600 .95rem "Zen Maru Gothic",sans-serif;border:1px solid var(--line);background:var(--glass2);color:var(--ink);border-radius:14px;padding:10px 14px;cursor:pointer}
+.tracks button span{font:500 .72rem "IBM Plex Mono",monospace;color:var(--muted)}
+.tracks button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:12px}.eq i{width:3px;background:var(--accent);animation:eq 1s ease-in-out infinite}.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+.emo{display:inline-block;font-style:normal;line-height:1}
+.bob{animation:bob 1.6s ease-in-out infinite}.wig{animation:wig 2.4s ease-in-out infinite}.pulse2{animation:pulse2 2.2s ease-in-out infinite}.float{animation:floaty 3.2s ease-in-out infinite}.spin{animation:spin 6s linear infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+@keyframes pulse2{50%{transform:scale(1.18)}}@keyframes floaty{50%{transform:translateY(-3px) rotate(4deg)}}@keyframes spin{to{transform:rotate(360deg)}}
+.tile small .emo{font-size:1rem;margin-right:4px;vertical-align:-2px}
+#walker{position:absolute;bottom:-4px;left:-10%;font-size:1.6rem;opacity:0;pointer-events:none}
+.walking #walker{opacity:1;animation:strut 7s linear infinite}
+.tracks .emo{font-size:1.2rem;vertical-align:-2px}
+@keyframes strut{from{left:-10%}to{left:105%}}
+.pop{position:fixed;z-index:60;font-size:1.6rem;pointer-events:none;animation:popup 1.2s ease-out forwards}
+@keyframes popup{from{transform:translateY(0) scale(.6);opacity:1}to{transform:translateY(-70px) scale(1.3);opacity:0}}
+
+/* ===== widget redesign ===== */
+:root{--sky1:#DCCBFB;--sky2:#A889EE;--sky3:#7453D4;--glass:rgba(78,52,168,.58);--glass2:rgba(255,255,255,.10);--rim:rgba(255,255,255,.26);--ink:#FFFFFF;--muted:#DCD2FA;--line:rgba(255,255,255,.14);--accent:#B6A2FF;--seafoam:#8FE3D0;--rose:#FFB3D0;--powder:#A9C8FF;--shadow:rgba(40,20,110,.35);--cloud:rgba(255,255,255,.55);--hillA:#8C74D8;--hillB:#6E55C2;--hillC:#553FA6;--ok:#8FE3C0;--warn:#FFD38A;--bad:#FF9DB8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky1:#2A1F5C;--sky2:#3E2C86;--sky3:#5A3FB0;--glass:rgba(40,28,98,.62);--glass2:rgba(255,255,255,.07);--rim:rgba(255,255,255,.18);--ink:#F6F2FF;--muted:#C9BEF0;--line:rgba(255,255,255,.12);--accent:#B6A2FF;--hillA:#3D2E86;--hillB:#30246E;--hillC:#241A56;--cloud:rgba(210,200,255,.18)}}
+:root[data-theme="dark"]{--sky1:#2A1F5C;--sky2:#3E2C86;--sky3:#5A3FB0;--glass:rgba(40,28,98,.62);--glass2:rgba(255,255,255,.07);--rim:rgba(255,255,255,.18);--ink:#F6F2FF;--muted:#C9BEF0;--line:rgba(255,255,255,.12);--accent:#B6A2FF;--hillA:#3D2E86;--hillB:#30246E;--hillC:#241A56;--cloud:rgba(210,200,255,.18)}
+body{padding-bottom:120px!important}
+.wrap.app{align-items:start;max-width:1180px;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.app>*{grid-column:1/-1;min-width:0}
+.w{background:var(--glass)!important;-webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);border:1px solid var(--rim);border-radius:28px;box-shadow:0 18px 40px -18px var(--shadow),inset 0 1px 0 var(--rim);padding:20px;animation:rise .7s cubic-bezier(.2,.8,.2,1) both;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.w:hover{transform:translateY(-2px)}
+details.w{padding:0}
+.wh{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:18px 20px}
+.wh::-webkit-details-marker{display:none}
+.wh h2{font:600 1rem "Outfit","Zen Maru Gothic",sans-serif;letter-spacing:.01em;text-transform:none;color:var(--ink)}
+.wi{font-size:1.5rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.wv{font-size:.95rem;color:var(--muted)}
+details.w>.wb{display:grid;gap:14px;padding:0 20px 20px;animation:unfold .45s cubic-bezier(.2,.8,.2,1)}
+details.w[open]>.wh{border-bottom:1px solid var(--line);margin-bottom:14px}
+.top{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:4px 4px 0}
+.brand{font:500 1.5rem "Outfit",sans-serif;letter-spacing:.01em;color:var(--topInk,#3B2A86)}
+.top .sub{color:var(--topMuted,#5B4AA0)}
+@media (prefers-color-scheme:dark){.brand{--topInk:#fff}.top .sub{--topMuted:#C9BEF0}}
+.heroico{font-size:3.4rem;filter:drop-shadow(0 10px 14px rgba(30,10,90,.45))}
+.hero{display:grid;gap:10px}
+.hclock small{font-size:.32em;font-weight:400;margin-left:.25em;letter-spacing:0;color:var(--muted)}
+.hclock{font:200 clamp(3.6rem,12vw,5.6rem)/.95 "Outfit",sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hsub{font:500 .95rem "Outfit",sans-serif;color:var(--muted)}
+.hint{margin:0;font:400 1.1rem/1.4 "Outfit",sans-serif;color:var(--ink);text-wrap:balance}
+.wtitle{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.pillrow{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
+.pill{flex:0 0 74px;scroll-snap-align:start;display:grid;justify-items:center;gap:6px;padding:14px 8px;border-radius:40px;background:var(--glass2);border:1px solid var(--rim);transition:transform .25s}
+.pill:hover{transform:translateY(-3px)}
+.pill.now{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#3a2590));border-color:transparent}
+.pill .emo{font-size:1.7rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.pill b{font:300 1.3rem "Outfit",sans-serif}.pill small{font:500 .7rem "Outfit",sans-serif;color:var(--muted)}.pill.now small{color:#fff}
+.tilesw .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tile{border-radius:20px!important}.tile b{font:300 1.9rem "Outfit",sans-serif!important}
+#focusSec.playing .playbtn{animation:pulse2 1.6s ease-in-out infinite}
+.playbtn{cursor:pointer;width:42px;height:42px;border-radius:50%;display:grid;place-content:center;background:#fff;color:#6B4FD8;font-size:1rem;box-shadow:0 8px 18px -6px rgba(20,0,80,.5);transition:transform .25s}
+
+.musicw a{color:var(--ink)}
+.walk .pond{width:210px}
+.dock{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);border:1px solid var(--rim);box-shadow:0 18px 40px -12px var(--shadow)}
+.dock button{width:48px;height:48px;border-radius:50%;border:0;background:transparent;cursor:pointer;font-size:1.35rem;transition:transform .2s,background .2s;display:grid;place-content:center}
+.dock button:hover{background:var(--glass2);transform:translateY(-2px)}
+.dock button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.dock .plus{width:58px;height:58px;margin:-18px 6px 0;background:#fff;color:#6B4FD8;font-size:1.8rem;font-weight:300;box-shadow:0 10px 24px -6px rgba(20,0,80,.6)}
+.sbtn{color:var(--ink)}.sbtn.pri,.wbtns button:not(.sec){color:#fff}
+.cosw .cosmic{padding:0}
+@media (min-width:720px){.hero{grid-column:span 12}.pills{grid-column:span 12}.walk{grid-column:span 12}.tilesw{grid-column:span 12}.tilesw .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.shiftw,.musicw,.sleepw,.tasksw{grid-column:span 6}.weekw,.cosw{grid-column:span 12}}
+@media (min-width:1080px){.tilesw .tiles{grid-template-columns:1fr 1fr}.hero{grid-column:span 5}.pills{grid-column:span 7}.walk{grid-column:span 7}.tilesw{grid-column:span 5}.shiftw,.musicw,.sleepw{grid-column:span 4}.tasksw,.weekw{grid-column:span 6}.cosw{grid-column:span 12}}
+@media (max-width:620px){.walk{grid-template-columns:1fr}}
+.spx{display:grid;gap:12px;min-width:0}.spx>*,details.w>.wb>*,.spitem,.spitem>span{min-width:0}.sppaste .sbtn{flex:none;padding-inline:16px}
+.spnow{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center}
+.spnow img{border-radius:12px;box-shadow:0 8px 18px -8px rgba(0,0,0,.5);background:var(--glass2)}
+.spmeta{display:grid;gap:4px;min-width:0}.spmeta b{font:600 1.05rem "Outfit",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spmeta .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spbar{height:5px;border-radius:99px;background:var(--glass2);overflow:hidden}.spbar i{display:block;height:100%;width:0;background:#1DB954;transition:width .9s linear}
+.spctl{display:flex;gap:8px;flex-wrap:wrap}
+.sppick{display:grid;gap:6px}.sppick select,.sppaste input{font:500 .95rem "Outfit",sans-serif;padding:10px 12px;border-radius:14px;border:1px solid var(--rim);background:var(--glass2);color:var(--ink);min-width:0}
+.sppaste{display:flex;gap:8px}
+.spres{display:grid;gap:6px;max-height:320px;overflow-y:auto;padding-right:4px}
+.spres h3{margin:6px 0 2px;font:500 .7rem "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.spitem{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:14px;background:var(--glass2);border:1px solid var(--line);cursor:pointer;text-align:left;color:var(--ink);font:inherit;transition:transform .2s,background .2s}
+.spitem:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--accent) 22%,var(--glass2))}
+.spitem img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--glass2)}
+.spitem b{display:block;font:600 .92rem "Outfit",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.spitem small{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.spitem span.q{font-size:.75rem;color:var(--muted);padding:4px 8px;border:1px solid var(--rim);border-radius:99px}.sppaste input{flex:1}.sppaste input::placeholder{color:var(--muted)}
+.spconnect{background:linear-gradient(135deg,#1DB954,#138a3e)!important;color:#fff!important;border-color:transparent!important}
+
+/* themed scrollbars */
+html{scrollbar-color:color-mix(in srgb,var(--accent) 70%,transparent) transparent}
+*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--accent) 70%,transparent) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 60%,var(--rose)));border-radius:99px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--rose),var(--accent));background-clip:padding-box;border:2px solid transparent}
+::-webkit-scrollbar-corner{background:transparent}
+.pillrow::-webkit-scrollbar{height:8px}
+.topr{display:flex;align-items:center;gap:12px}
+.instbtn{font:600 .95rem "Outfit",sans-serif;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:99px;border:0;cursor:pointer;background:#fff;color:#6B4FD8;box-shadow:0 10px 22px -10px rgba(40,10,120,.6);transition:transform .2s}
+.instbtn:hover{transform:translateY(-2px)}.instbtn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.insthelp{position:fixed;inset:0;z-index:70;display:grid;place-content:center;padding:20px;background:rgba(20,10,60,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ihcard{max-width:420px;background:var(--glass);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);border:1px solid var(--rim);border-radius:24px;padding:22px;display:grid;gap:12px;color:var(--ink)}
+.ihcard h3{margin:0;font:600 1.3rem "Outfit",sans-serif}.ihcard ol{margin:0;padding-left:20px;display:grid;gap:6px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.tasks{box-sizing:border-box;width:100%;display:grid;gap:10px}
+#add{display:flex;gap:8px}
+#add input{flex:1;min-width:0;font:inherit;font-size:1rem;padding:12px 14px;border-radius:14px;border:1px solid var(--rim);background:var(--glass2);color:var(--ink)}
+#add input:focus-visible{outline:2px solid var(--accent)}
+#add button{font:600 .95rem "Zen Maru Gothic",sans-serif;border:1px solid var(--rim);border-radius:99px;padding:10px 18px;background:var(--glass2);color:var(--ink);cursor:pointer}
+#list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#list li{display:flex;align-items:center;gap:10px;background:var(--glass2);border:1px solid var(--line);border-radius:14px;padding:10px 14px;transition:background .25s}
+#list label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer}
+#list input{width:20px;height:20px;accent-color:var(--accent)}
+#list li.x span{text-decoration:line-through;color:var(--muted)}
+#list .del{background:none;border:0;color:var(--muted);padding:4px 8px;font-size:1.2rem;cursor:pointer}
+.wrap{max-width:760px}
+.go{display:inline-block;margin-left:6px;font:700 .9rem "Zen Maru Gothic",sans-serif;color:#fff;background:linear-gradient(135deg,var(--seafoam),var(--accent));padding:8px 16px;border-radius:99px;text-decoration:none}
+</style>
+<div class="scene" aria-hidden="true"><div class="pts" id="pts"></div>
+ <div class="sun"></div>
+ <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+ <svg class="hills" viewBox="0 0 1440 400" preserveAspectRatio="none">
+  <path d="M0 230 C220 150 420 190 640 170 C880 150 1080 110 1440 180 L1440 400 L0 400Z" style="fill:var(--hillA)" opacity=".75"/>
+  <path d="M0 290 C260 230 520 280 760 250 C1000 220 1220 250 1440 230 L1440 400 L0 400Z" style="fill:var(--hillB)" opacity=".85"/>
+  <g class="grass"><path d="M0 340 C300 300 600 350 900 320 C1150 295 1300 320 1440 310 L1440 400 L0 400Z" style="fill:var(--hillC)"/></g>
+  <g style="fill:var(--hillC)"><ellipse cx="1180" cy="236" rx="26" ry="34"/><rect x="1177" y="262" width="5" height="22"/><ellipse cx="1220" cy="244" rx="18" ry="24"/><rect x="1218" y="262" width="4" height="16"/></g>
+ </svg>
+ <div class="fly" style="left:18%;bottom:24%"></div><div class="fly" style="left:42%;bottom:18%;animation-delay:-3s"></div><div class="fly" style="left:70%;bottom:28%;animation-delay:-5s"></div><div class="fly" style="left:86%;bottom:14%;animation-delay:-1.5s"></div>
+</div>
+<div class="wrap app">
+<header class="top"><div><div class="brand">Koi &amp; Cosmos</div><div class="sub" id="ldate"></div></div><div class="topr"><button type="button" class="instbtn" id="instBtn" hidden><span class="emo bob">📲</span> Install app</button><span class="emo float heroico" id="heroEmo">🌤️</span></div></header>
+<section class="w hero" id="hero">
+ <div class="hclock" id="lclock">--:--</div>
+ <div class="hsub"><span id="shState">Not on shift</span> · <span id="hWalks">0 walks</span> · <span id="hTasks">0 tasks</span></div>
+ <blockquote class="hint" id="affText">…</blockquote>
+ <div class="meta"><span class="chipx" id="affHouse"></span><span class="chipx" id="moonChip"></span></div>
+</section>
+<section class="w pills" id="pillSec"><div class="wtitle"><h2>Next reminders</h2><span class="sub" id="pillNote">every hour at :46</span></div><div class="pillrow" id="pillrow"></div></section>
+<section class="w walk" id="walkbox" style="position:relative;overflow:hidden"><span id="walker" class="emo">🚶‍♀️</span>
+  <div class="pond"><svg viewBox="0 0 120 120" role="img" aria-label="Koi pond timer">
+   <defs><radialGradient id="water" cx=".4" cy=".35"><stop offset="0" stop-color="var(--powder)"/><stop offset=".6" stop-color="var(--seafoam)"/><stop offset="1" stop-color="var(--accent)"/></radialGradient></defs>
+   <circle cx="60" cy="60" r="50" fill="url(#water)" opacity=".55"/>
+   <path d="M60 14 A23 23 0 0 1 60 60 A23 23 0 0 0 60 106 A46 46 0 0 1 60 14Z" fill="var(--rim)" opacity=".35"/>
+   <circle class="ripple" cx="60" cy="60" r="48"/><circle class="ripple" cx="60" cy="60" r="48" style="animation-delay:-2.5s"/>
+   <circle cx="60" cy="60" r="56" fill="none" stroke="var(--line)" stroke-width="3"/>
+   <circle id="wring" cx="60" cy="60" r="56" fill="none" stroke="var(--seafoam)" stroke-width="3" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+   <g id="koi"><g transform="translate(60 23)"><path d="M15 0 C10 -6 -4 -7 -10 -2 L-17 -7 L-14 0 L-17 7 L-10 2 C-4 7 10 6 15 0Z" fill="#FBF6EE"/><ellipse cx="3" cy="-5" rx="4" ry="1.6" fill="#FBF6EE" opacity=".7" transform="rotate(-30 3 -5)"/><ellipse cx="3" cy="5" rx="4" ry="1.6" fill="#FBF6EE" opacity=".7" transform="rotate(30 3 5)"/><circle cx="5" cy="0" r="2.4" fill="#2F2C42"/></g><g transform="translate(60 97) rotate(180)"><path d="M15 0 C10 -6 -4 -7 -10 -2 L-17 -7 L-14 0 L-17 7 L-10 2 C-4 7 10 6 15 0Z" fill="#2F2C42"/><ellipse cx="3" cy="-5" rx="4" ry="1.6" fill="#2F2C42" opacity=".7" transform="rotate(-30 3 -5)"/><ellipse cx="3" cy="5" rx="4" ry="1.6" fill="#2F2C42" opacity=".7" transform="rotate(30 3 5)"/><circle cx="5" cy="0" r="2.4" fill="#FBF6EE"/></g></g>
+  </svg><div class="t"><b id="wtime">2:00</b><small id="wlbl">stand-up walk</small></div></div>
+  <div class="wside">
+   <h2>Stand-up walk <span class="emo wig">🚶</span></h2>
+   <div><div class="sub">Next reminder</div><div class="big mono" id="wnext">--</div></div>
+   <p class="sub" id="wmsg" style="margin:0">Walk for at least 2 minutes. Lofi music plays while you walk, and the koi swim faster.</p>
+   <div class="wbtns"><button type="button" id="wgo">Walk</button><button type="button" class="sec" id="wreset">Reset</button><button type="button" class="sec" id="wprev">Preview hourly alarm</button><button type="button" class="sec" id="wmusic">Preview walk music</button></div>
+   <div class="sub mono" id="wtally">0 walks · 0 min today</div>
+  </div>
+</section>
+<section class="w tilesw" id="dashSec"><div class="tiles">
+  <div class="tile"><small><span class="emo float">📈</span>Productivity</small><b id="tProd">0h 00m</b><span id="tProdS">on shift today</span></div>
+  <div class="tile"><small><span class="emo bob">✅</span>Tasks</small><b id="tTask">0</b><span id="tTaskS">done today</span></div>
+  <div class="tile"><small><span class="emo wig">👟</span>Motion</small><b id="tWalk">0</b><span id="tWalkS">walks · 0 min today</span></div>
+  <div class="tile"><small><span class="emo float">😴</span>Sleep</small><b id="tSleep">—</b><span id="tSleepS">last night</span></div>
+ </div></section>
+<details class="w shiftw" id="shiftSec" open><summary class="wh"><span class="wi emo spin">⏱️</span><h2>My shift</h2><span class="wv mono" id="shTimer">0h 00m</span></summary><div class="wb"><button type="button" class="sbtn pri" id="shBtn">Start shift</button><p class="note" style="margin:0">Start when you begin work and end when you finish. Your hours show in the dashboard.</p></div></details>
+<details class="w musicw" id="focusSec"><summary class="wh"><span class="playbtn" role="button" tabindex="0" aria-label="Play or pause focus playlist">▶</span><h2>Music</h2><span class="wv emo bob">🎧</span></summary><div class="wb"><div class="spx" id="spx">
+ <div class="spnow" id="spNow" hidden><img id="spArt" alt="" width="64" height="64"><div class="spmeta"><b id="spTitle">—</b><span id="spArtist" class="sub"></span><div class="spbar"><i id="spProg"></i></div></div></div>
+ <div class="spctl" id="spCtl" hidden><button type="button" class="sbtn" id="spPrev" aria-label="Previous track">⏮</button><button type="button" class="sbtn pri" id="spToggle" aria-label="Play or pause">▶ Play playlist</button><button type="button" class="sbtn" id="spNext" aria-label="Next track">⏭</button></div>
+ <form class="sppaste spsearch" id="spSearch" role="search"><input id="spQ" type="search" placeholder="🔍 Search songs, artists or playlists" autocomplete="off"><button type="submit" class="sbtn">Search</button></form>
+ <div class="spres" id="spRes" hidden></div>
+ <div class="sppick"><label for="spPick" class="sub">Playlist</label><select id="spPick"><option value="spotify:playlist:679wCT6dVMDBxrYa5NcrXL">Koi &amp; Cosmos focus (default)</option></select></div>
+ <form class="sppaste" id="spPaste"><input id="spLink" placeholder="Or paste any Spotify playlist or album link" autocomplete="off"><button type="submit" class="sbtn">Use</button></form>
+ <div class="cosbtns"><button type="button" class="sbtn spconnect" id="spConnect">Connect Spotify Premium</button><button type="button" class="sbtn" id="spLogout" hidden>Disconnect</button></div>
+ <p class="sub" id="spStatus" style="margin:0">Connect once to play full songs right here. Needs Spotify Premium on a computer browser.</p>
+</div>
+<div id="spotWrap"></div><p class="note" id="spEmbedNote" style="margin:0">Tap ▶ to play or pause. Log in to Spotify in this browser for full songs; otherwise Spotify plays 30-second previews. It pauses when you start a walk. <a href="https://open.spotify.com/playlist/679wCT6dVMDBxrYa5NcrXL" target="_blank" rel="noopener">Open in Spotify</a></p></div></details>
+<details class="w sleepw" id="sleepbox"><summary class="wh"><span class="wi emo float">🌙</span><h2>Sleep &amp; wake</h2><span class="wv mono" id="sleepV">—</span></summary><div class="wb sleep">
+ <p class="sub" style="margin:0">Fall asleep to soft music, then wake up to a gentle abundance melody that keeps playing until you stop it.</p>
+ <div class="srow"><label for="sleepFor">Sleep music</label><select id="sleepFor"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="60">1 hour</option><option value="0">Until I stop it</option></select>
+  <button type="button" class="sbtn" id="sleepGo">Play sleep music</button></div>
+ <div class="srow"><label for="wakeAt">Wake me at</label><input type="time" id="wakeAt" value="06:30">
+  <button type="button" class="sbtn pri" id="wakeSet">Set alarm</button><button type="button" class="sbtn" id="wakePrev">Preview wake alarm</button></div>
+ <div id="sstat">No alarm set</div>
+ <p class="note" style="margin:0">Keep this app open with your phone plugged in and the volume up. Phones pause web apps when the screen locks, so leave it on the charger face down.</p>
+</div></details>
+<details class="w tasksw" id="tasksW"><summary class="wh"><span class="wi emo bob">📝</span><h2>Tasks</h2><span class="wv mono" id="tasksV">0</span></summary><div class="wb tasks">
+<form id="add"><input id="newTask" placeholder="Add a task" autocomplete="off"><button type="submit">Add</button></form>
+<ul id="list"></ul></div></details>
+<details class="w weekw" id="weekW"><summary class="wh"><span class="wi emo pulse2">📊</span><h2>This week</h2><span class="wv sub">7 days</span></summary><div class="wb"><div class="dtabs" role="group" aria-label="Chart metric"><button type="button" data-m="shift" aria-pressed="true">Shift hours</button><button type="button" data-m="tasks" aria-pressed="false">Tasks</button><button type="button" data-m="walkMin" aria-pressed="false">Walk minutes</button><button type="button" data-m="sleep" aria-pressed="false">Sleep hours</button></div><svg id="wk" viewBox="0 0 420 130" role="img" aria-label="Last 7 days"></svg><p class="note" style="margin:0">Saved on this device only.</p></div></details>
+<section class="w cosw cosmic" id="cosbox"><details id="cosDet" open><summary class="cossum"><h2>Your cosmic theme</h2><span id="cosBadge" class="chipx">Tap to set up</span></summary><div class="cosbody">
+ <p class="sub" style="margin:0">Enter your birth details. The app reads your chart and redraws its colors, walk music, alarms and daily intentions around you. Your details stay on your phone; only the city name you search is sent to a free map service to find it.</p>
+ <div class="cgrid">
+  <label for="bDate">Birth date<input type="date" id="bDate"></label>
+  <label for="bTime">Birth time<input type="time" id="bTime"></label>
+  <label for="bCity">Birth city<input id="bCity" list="cityList" placeholder="Start typing, e.g. Manila" autocomplete="off"></label>
+  <label for="bGender">Gender (optional)<select id="bGender"><option value="">Prefer not to say</option><option value="woman">Woman</option><option value="man">Man</option><option value="nonbinary">Non-binary</option></select></label>
+ </div>
+ <datalist id="cityList"></datalist>
+ <label class="sub" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="bNoTime"> I don't know my birth time</label>
+ <details id="bOther"><summary class="sub" style="cursor:pointer">My city isn't listed</summary>
+  <div class="cgrid" style="margin-top:10px"><label for="bLat">Latitude<input id="bLat" inputmode="decimal" placeholder="14.60"></label><label for="bLon">Longitude<input id="bLon" inputmode="decimal" placeholder="120.98"></label><label for="bOff">UTC offset at birth (hours)<input id="bOff" inputmode="decimal" placeholder="8"></label></div></details>
+ <div class="cosbtns"><button type="button" class="sbtn pri" id="cRead">Read my chart</button><button type="button" class="sbtn" id="cReset">Reset to default</button></div>
+ <p id="cErr" class="sub" style="margin:0;color:var(--bad)" hidden></p>
+ <div id="chartOut" hidden><div class="big3" id="big3"></div><div class="houses" id="houses"></div></div>
+ <details><summary class="sub" style="cursor:pointer">Adjust signs manually</summary>
+  <div class="cgrid" style="margin-top:10px">
+   <label for="cSun">Sun sign<select id="cSun"><option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option><option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option><option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option></select></label>
+   <label for="cMoon">Moon sign<select id="cMoon"><option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option><option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option><option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option></select></label>
+   <label for="cRise">Rising sign<select id="cRise"><option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option><option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option><option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option></select></label>
+  </div><div class="cosbtns" style="margin-top:10px"><button type="button" class="sbtn" id="cApply">Apply these signs</button></div></details>
+ <p id="cosSum" class="sub" style="margin:0"></p>
+</div></details></section>
+<div id="ring" hidden><div class="glow"></div><div class="emo bob" style="font-size:2.4rem">🌞</div><h3>Good morning</h3><p>You are abundant. Today flows easily to you.</p>
+ <button type="button" class="sbtn" id="ringStop">Stop alarm</button><button type="button" class="sbtn" id="ringSnooze">Snooze 9 min</button></div>
+</div>
+<div id="instHelp" class="insthelp" hidden role="dialog" aria-modal="true" aria-labelledby="ihT"><div class="ihcard"><h3 id="ihT">Install Koi &amp; Cosmos</h3><div id="ihBody"></div><button type="button" class="sbtn pri" id="ihClose">Got it</button></div></div>
+<nav class="dock" aria-label="Quick actions">
+ <button type="button" id="dHome" aria-label="Top"><span class="emo">🏠</span></button>
+ <button type="button" id="dWalk" aria-label="Start walk"><span class="emo">🚶</span></button>
+ <button type="button" id="dAdd" class="plus" aria-label="Add task">＋</button>
+ <button type="button" id="dMusic" aria-label="Focus playlist"><span class="emo">🎧</span></button>
+ <button type="button" id="dSleep" aria-label="Sleep and wake"><span class="emo">🌙</span></button>
+</nav>
+<script>
+window.__pop=(el,em)=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;const r=el.getBoundingClientRect(),d=document.createElement("span");d.className="pop";d.textContent=em;d.style.left=(r.left+r.width/2-12)+"px";d.style.top=(r.top-10)+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),1300)};
+
+(()=>{const G=120,C=2*Math.PI*56,ring=document.getElementById("wring"),koi=document.getElementById("koi"),box=document.getElementById("walkbox"),B=document.getElementById("wgo");
+ ring.style.strokeDasharray=C;let t=0,iv=null,ang=0,last=performance.now();const day=new Date().toDateString();let st={day,count:0,secs:0};
+ try{const x=JSON.parse(localStorage.getItem("walk"));if(x&&x.day===day)st=x}catch(e){}
+ const save=()=>{try{localStorage.setItem("walk",JSON.stringify(st))}catch(e){}},f=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+ const rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ function draw(){document.getElementById("wtime").textContent=t<G?f(G-t):"+"+f(t-G);
+  document.getElementById("wlbl").textContent=iv?(t<G?"keep walking":"goal met"):"stand-up walk";
+  ring.style.strokeDashoffset=C*(1-Math.min(t/G,1));box.classList.toggle("walking",!!iv);
+  document.getElementById("wtally").textContent=`${st.count} walks · ${Math.floor(st.secs/60)} min today`}
+ function nxt(){const n=new Date(),x=new Date(n);x.setSeconds(0,0);x.setMinutes(46);if(x<=n)x.setHours(x.getHours()+1);const s=Math.round((x-n)/1000);
+  document.getElementById("wnext").textContent=x.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+" · in "+Math.floor(s/60)+"m "+String(s%60).padStart(2,"0")+"s"}
+ function swim(now){const dt=(now-last)/1000;last=now;ang=(ang+dt*(iv?45:9))%360;koi.setAttribute("transform",`rotate(${ang} 60 60)`);requestAnimationFrame(swim)}
+ if(!rm)requestAnimationFrame(swim);
+ let AC=null,playing=null;let seed=46;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ function bell(ctx,dest,f,at,vol,dur){[1,2.76,5.4].forEach((r,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=f*r;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(vol/(i*2+1),at+.005);g.gain.exponentialRampToValueAtTime(.0008,at+dur/(i+1));o.connect(g);g.connect(dest);o.start(at);o.stop(at+dur+.1)})}
+ function beep(){const ctx=AC||(AC=new (window.AudioContext||window.webkitAudioContext)());if(ctx.state==="suspended")ctx.resume();
+  if(playing){playing.stop();}
+  const t0=ctx.currentTime+.05,out=ctx.createGain();out.gain.value=.5;out.connect(ctx.destination);
+  const hz=m=>440*Math.pow(2,(m-69)/12),notes=[84,81,79,76,79,81,84,88].map(n=>n+((window.COSMIC||{}).bell||0));
+  for(let r=0;r<3;r++)notes.forEach((m,i)=>bell(ctx,out,hz(m),t0+r*3+i*.16,.22,2.2));
+  const P=document.getElementById("wprev");P.textContent="Stop sound";
+  playing={stop(){try{out.gain.cancelScheduledValues(0);out.gain.value=0}catch(e){}out.disconnect();playing=null;P.textContent="Preview hourly alarm"}};setTimeout(()=>playing&&playing.stop(),9500)}
+ function goalChime(){const ctx=AC||(AC=new (window.AudioContext||window.webkitAudioContext)());const out=ctx.createGain();out.gain.value=.45;out.connect(ctx.destination);
+  const t0=ctx.currentTime+.05,hz=m=>440*Math.pow(2,(m-69)/12);[[72,0],[76,.18],[79,.36],[84,.6]].forEach(([m,d])=>bell(ctx,out,hz(m),t0+d,.2,1.6));setTimeout(()=>out.disconnect(),3000)}
+ document.getElementById("wprev").onclick=()=>playing?playing.stop():beep();
+ let lastAlarm=null;setInterval(()=>{const n=new Date();if(n.getMinutes()===46&&n.getSeconds()===0&&lastAlarm!==n.getHours()){lastAlarm=n.getHours();beep();document.getElementById("wmsg").textContent="Time to stand up. Press Walk."}},1000);
+ let mus=null;
+ function startMusic(){seed=46;const ctx=AC||(AC=new (window.AudioContext||window.webkitAudioContext)());if(ctx.state==="suspended")ctx.resume();if(mus)return;
+  const out=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=(window.COSMIC||{}).lp||1200;out.gain.setValueAtTime(0,ctx.currentTime);out.gain.linearRampToValueAtTime(.35,ctx.currentTime+2);lp.connect(out);out.connect(ctx.destination);
+  const CS=window.COSMIC||{},hz=m=>440*Math.pow(2,(m-69+(CS.shift||0))/12),beat=60/(CS.bpm||76),prog=[[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59]],mel=[72,69,67,64,65,67,69,72,71,67,64,62,64,67,65,64];
+  const nb=ctx.sampleRate*2,nbuf=ctx.createBuffer(1,nb,ctx.sampleRate),nd=nbuf.getChannelData(0);for(let i=0;i<nb;i++)nd[i]=rnd()*2-1;
+  const crk=ctx.createBufferSource(),cb=ctx.createBuffer(1,nb,ctx.sampleRate),cd=cb.getChannelData(0);for(let i=0;i<nb;i++)cd[i]=rnd()<.0008?(rnd()*2-1)*.6:(rnd()*2-1)*.01;crk.buffer=cb;crk.loop=true;crk.connect(out);crk.start();
+  let next=ctx.currentTime+.1,bar=0;
+  function tone(m,at,dur,type,vol,dest){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=hz(m);o.detune.value=((m*7)%11)-5;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(vol,at+.03);g.gain.exponentialRampToValueAtTime(.001,at+dur);o.connect(g);g.connect(dest);o.start(at);o.stop(at+dur+.05)}
+  function schedBar(t){const ch=prog[bar%4];ch.forEach((m,i)=>tone(m,t+i*.05,beat*3.8,CS.wave||"triangle",.06,lp));tone(ch[0]-12,t,beat*1.8,"sine",.16,lp);tone(ch[0]-12,t+beat*2,beat*1.8,"sine",.13,lp);
+   for(let k=0;k<4;k++){const at=t+k*beat;if(k%2===0){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(100,at);o.frequency.exponentialRampToValueAtTime(40,at+.15);g.gain.setValueAtTime(.2,at);g.gain.exponentialRampToValueAtTime(.001,at+.25);o.connect(g);g.connect(out);o.start(at);o.stop(at+.3)}
+    else{const n=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();n.buffer=nbuf;f.type="bandpass";f.frequency.value=1800;g.gain.setValueAtTime(.08,at);g.gain.exponentialRampToValueAtTime(.001,at+.18);n.connect(f);f.connect(g);g.connect(out);n.start(at,rnd());n.stop(at+.2)}
+    [0,.5].forEach(h=>{const at2=at+h*beat+(h?beat*.08:0),n=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();n.buffer=nbuf;f.type="highpass";f.frequency.value=7000;g.gain.setValueAtTime(.025,at2);g.gain.exponentialRampToValueAtTime(.001,at2+.05);n.connect(f);f.connect(g);g.connect(out);n.start(at2,rnd());n.stop(at2+.06)})}
+   if(bar%2===1)for(let k=0;k<4;k++)tone(mel[(bar*2+k)%16],t+k*beat+.02,beat*.9,"sine",.05,lp);bar++}
+  const iv2=setInterval(()=>{while(next<ctx.currentTime+.6){schedBar(next);next+=beat*4}},150);
+  mus={out,stop(){clearInterval(iv2);const n=ctx.currentTime;out.gain.cancelScheduledValues(n);out.gain.setValueAtTime(out.gain.value,n);out.gain.linearRampToValueAtTime(0,n+1.2);setTimeout(()=>{try{crk.stop()}catch(e){}out.disconnect()},1400);mus=null;document.getElementById("wmusic").textContent="Preview walk music"}};
+  document.getElementById("wmusic").textContent="Stop music"}
+ function stopMusic(){if(mus)mus.stop()}
+ window.__music={start:startMusic,stop:stopMusic,on:()=>!!mus};
+ document.getElementById("wmusic").onclick=()=>mus?stopMusic():startMusic();
+ B.onclick=()=>{const m=document.getElementById("wmsg");if(iv){clearInterval(iv);iv=null;st.secs+=t;if(t>=G)st.count++;save();window.__log&&window.__log("walk",t);stopMusic();window.__focus&&window.__focus.resume&&window.__focus.resume();B.textContent="Walk";
+   m.textContent=t>=G?"Logged. The koi will see you next hour.":"Stopped early. Walks under 2 minutes aren't counted.";t=0;draw();return}
+  t=0;window.__focus&&window.__focus.pauseForWalk();startMusic();B.textContent="Done";m.textContent="Timer running. Press Done when you're back.";iv=setInterval(()=>{t++;if(t===G){window.__pop&&window.__pop(document.getElementById("wtime"),"🏆");if(mus){mus.out.gain.linearRampToValueAtTime(.15,AC.currentTime+.5)}goalChime()};draw()},1000);draw()};
+ document.getElementById("wreset").onclick=()=>{stopMusic();window.__focus&&window.__focus.resume&&window.__focus.resume();clearInterval(iv);iv=null;t=0;B.textContent="Walk";document.getElementById("wmsg").textContent="Walk for at least 2 minutes. Lofi music plays while you walk, and the koi swim faster.";draw()};
+ nxt();setInterval(nxt,1000);draw();})();
+
+let tasks=[];try{tasks=JSON.parse(localStorage.getItem('walkTasks'))||[]}catch(e){}
+let fresh=false;try{fresh=localStorage.getItem('walkTasks')===null}catch(e){}
+if(!tasks.length&&fresh)tasks=[{t:'Example: reply to pending emails',d:false}];
+const saveT=()=>{try{localStorage.setItem('walkTasks',JSON.stringify(tasks))}catch(e){}};
+function renderT(){const L=document.getElementById('list');L.innerHTML='';tasks.forEach((k,i)=>{const li=document.createElement('li');li.className=k.d?'x':'';
+ li.innerHTML='<label><input type="checkbox" id="tk'+i+'"'+(k.d?' checked':'')+'><span></span></label><button class="del" type="button" aria-label="Delete task">×</button>';
+ li.querySelector('span').textContent=k.t;li.querySelector('input').onchange=e=>{k.d=e.target.checked;window.__log&&window.__log("task",e.target.checked?1:-1);if(e.target.checked&&window.__pop)window.__pop(e.target,"🎉");saveT();renderT()};
+ li.querySelector('.del').onclick=()=>{tasks.splice(i,1);saveT();renderT()};L.appendChild(li)})}
+document.getElementById('add').onsubmit=e=>{e.preventDefault();const v=document.getElementById('newTask');if(v.value.trim()){tasks.push({t:v.value.trim(),d:false});v.value='';saveT();renderT()}};
+renderT();
+
+(()=>{let ctx=null;const A=()=>{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();return ctx};
+const hz=m=>440*Math.pow(2,(m-69)/12);
+function tone(c,dest,m,at,dur,type,vol,atk){const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=hz(m);o.detune.value=((m*7)%9)-4;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(vol,at+(atk||.03));g.gain.exponentialRampToValueAtTime(.0008,at+dur);o.connect(g);g.connect(dest);o.start(at);o.stop(at+dur+.1)}
+function bellT(c,dest,m,at,vol){[1,2.76,5.4].forEach((r,i)=>{const o=c.createOscillator(),g=c.createGain();o.frequency.value=hz(m)*r;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(vol/(i*2+1),at+.01);g.gain.exponentialRampToValueAtTime(.0006,at+3/(i+1));o.connect(g);g.connect(dest);o.start(at);o.stop(at+3.2)})}
+function noiseBuf(c){const n=c.sampleRate*3,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);let s=46;for(let i=0;i<n;i++){s=(s*16807)%2147483647;d[i]=s/1073741823.5-1}return b}
+function loop(kind,peak,fadeIn){const c=A(),out=c.createGain(),lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=kind==="sleep"?650:1500;
+ out.gain.setValueAtTime(0,c.currentTime);out.gain.linearRampToValueAtTime(peak,c.currentTime+fadeIn);lp.connect(out);out.connect(c.destination);
+ let waves=null;if(kind==="sleep"){waves=c.createBufferSource();const f=c.createBiquadFilter(),g=c.createGain(),lfo=c.createOscillator(),lg=c.createGain();waves.buffer=noiseBuf(c);waves.loop=true;f.type="lowpass";f.frequency.value=500;g.gain.value=.05;lfo.frequency.value=.08;lg.gain.value=.04;lfo.connect(lg);lg.connect(g.gain);waves.connect(f);f.connect(g);g.connect(out);waves.start();lfo.start()}
+ const MS=kind==="wake"?((window.COSMIC||{}).moon||0):0,prog0=kind==="sleep"?[[48,55,59,64],[45,52,55,60],[41,48,52,57],[43,50,55,59]]:[[48,55,59,62,64],[53,57,60,64,67],[45,52,55,59,64],[50,57,60,64,65]];const prog=prog0.map(c=>c.map(n=>n+MS));
+ const beat=kind==="sleep"?60/52:60/70;let next=c.currentTime+.2,bar=0;
+ const sparkle=[72,76,79,81,84,79,76,74].map(n=>n+MS);
+ function sched(t){const ch=prog[bar%4],L=beat*4;ch.forEach((m,i)=>tone(c,lp,m,t+i*(kind==="sleep"?.25:.05),L*1.1,kind==="sleep"?"sine":"triangle",kind==="sleep"?.05:.045,kind==="sleep"?1.2:.05));
+  tone(c,lp,ch[0]-12,t,L,"sine",kind==="sleep"?.09:.13,.3);
+  if(kind==="wake"){for(let k=0;k<4;k++){const at=t+k*beat;if(k%2===0){const o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(95,at);o.frequency.exponentialRampToValueAtTime(40,at+.15);g.gain.setValueAtTime(.16,at);g.gain.exponentialRampToValueAtTime(.001,at+.25);o.connect(g);g.connect(out);o.start(at);o.stop(at+.3)}}
+   for(let k=0;k<2;k++)bellT(c,out,sparkle[(bar*2+k)%8],t+k*beat*2+beat*.5,.06)}
+  else if(bar%2===0)bellT(c,out,sparkle[bar%8]-12,t+beat*2,.025);bar++}
+ const iv=setInterval(()=>{while(next<c.currentTime+1){sched(next);next+=beat*4}},200);
+ return{stop(f=1.5){clearInterval(iv);const n=c.currentTime;out.gain.cancelScheduledValues(n);out.gain.setValueAtTime(out.gain.value,n);out.gain.linearRampToValueAtTime(0,n+f);setTimeout(()=>{try{waves&&waves.stop()}catch(e){}out.disconnect()},f*1000+300)},fadeTo(v,s){const n=c.currentTime;out.gain.cancelScheduledValues(n);out.gain.setValueAtTime(out.gain.value,n);out.gain.linearRampToValueAtTime(v,n+s)}}}
+let sleepL=null,sleepT=null,wakeL=null,prevL=null,lock=null,alarm=null;
+try{alarm=JSON.parse(localStorage.getItem("wakeAlarm"))}catch(e){}
+const $=id=>document.getElementById(id),stat=$("sstat");
+async function keepAwake(on){try{if(on&&"wakeLock" in navigator&&!lock){lock=await navigator.wakeLock.request("screen");lock.addEventListener("release",()=>lock=null)}if(!on&&lock){lock.release();lock=null}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&(alarm||sleepL))keepAwake(true)});
+function stopSleep(){if(sleepL){sleepL.stop(4);sleepL=null}clearTimeout(sleepT);$("sleepGo").textContent="Play sleep music";if(!alarm)keepAwake(false)}
+$("sleepGo").onclick=()=>{if(sleepL)return stopSleep();try{localStorage.setItem("bedAt",Date.now())}catch(e){}sleepL=loop("sleep",.45,8);keepAwake(true);$("sleepGo").textContent="Stop sleep music";const m=+$("sleepFor").value;
+ if(m){sleepT=setTimeout(()=>{sleepL&&sleepL.fadeTo(0,120);setTimeout(stopSleep,121000)},m*60000-120000)}};
+function nextAt(t){const [h,mi]=t.split(":").map(Number),d=new Date();d.setHours(h,mi,0,0);if(d<=new Date())d.setDate(d.getDate()+1);return d.getTime()}
+function show(){if(alarm){if(!alarm.at)alarm.at=nextAt(alarm.t);const d=new Date(alarm.snooze||alarm.at);
+  const s=Math.max(0,Math.round((d-new Date())/1000));stat.textContent=`Alarm set for ${d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})} · in ${Math.floor(s/3600)}h ${String(Math.floor(s%3600/60)).padStart(2,"0")}m`;$("wakeSet").textContent="Cancel alarm";return d}
+ stat.textContent="No alarm set";$("wakeSet").textContent="Set alarm";return null}
+const save=()=>{try{alarm?localStorage.setItem("wakeAlarm",JSON.stringify(alarm)):localStorage.removeItem("wakeAlarm")}catch(e){}};
+$("wakeSet").onclick=()=>{A();if(alarm){alarm=null;save();show();if(!sleepL)keepAwake(false);return}alarm={t:$("wakeAt").value,at:nextAt($("wakeAt").value)};try{if(!localStorage.getItem("bedAt"))localStorage.setItem("bedAt",Date.now())}catch(e){}save();show();keepAwake(true)};
+if(alarm){$("wakeAt").value=alarm.t;}
+function ringNow(){if(wakeL)return;stopSleep();if(prevL){prevL.stop();prevL=null}wakeL=loop("wake",.6,60);$("ring").hidden=false;try{navigator.vibrate&&navigator.vibrate([400,300,400])}catch(e){}}
+$("ringStop").onclick=()=>{window.__log&&window.__log("wake");if(wakeL){wakeL.stop(2);wakeL=null}$("ring").hidden=true;alarm=null;save();show();keepAwake(false)};
+$("ringSnooze").onclick=()=>{if(wakeL){wakeL.stop(2);wakeL=null}$("ring").hidden=true;alarm.snooze=Date.now()+9*60000;save();show()};
+$("wakePrev").onclick=()=>{if(prevL){prevL.stop();prevL=null;$("wakePrev").textContent="Preview wake alarm";return}prevL=loop("wake",.6,3);$("wakePrev").textContent="Stop preview"};
+setInterval(()=>{const d=show();if(d&&!wakeL&&Date.now()>=d.getTime()-500){ringNow()}},1000);show();
+})();
+
+(()=>{const A=[
+["1st house · Virgo","I move with clarity and care. Small steps shape who I am becoming."],
+["2nd house · Libra","Money flows to me in balance. I am worthy of beautiful, steady abundance."],
+["3rd house · Scorpio","My words carry depth. I speak and learn with quiet power."],
+["4th house · Sagittarius","My home is open and free. I carry peace wherever I go."],
+["5th house · Capricorn","My creativity builds lasting things. Joy and discipline work together."],
+["6th house · Aquarius","My routines serve me. Every stand-up is a small gift to my body."],
+["7th house · Pisces","The right people and clients flow to me with ease and kindness."],
+["8th house · Aries","I welcome bold change. Shared resources grow in my care."],
+["9th house · Taurus","I learn and grow at my own steady pace. My path unfolds gently."],
+["10th house · Gemini","My voice opens doors. Recognition finds me as I share my work."],
+["11th house · Cancer","My people support me, and I support them. Together we rise."],
+["12th house · Leo","Rest restores my light. What I do quietly shines in time."]];
+const d=new Date(),i=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5)%12,a=A[i];
+document.getElementById("affText").textContent=a[1];document.getElementById("affHouse").textContent=a[0];
+const syn=29.530588853,ref=Date.UTC(2000,0,6,18,14),age=(((d-ref)/864e5)%syn+syn)%syn,
+N=["New Moon","Waxing Crescent","First Quarter","Waxing Gibbous","Full Moon","Waning Gibbous","Last Quarter","Waning Crescent"],
+ph=N[Math.floor((age/syn)*8+.5)%8];document.getElementById("moonChip").textContent="🌙 "+ph;
+const r=document.querySelector("#ring p");if(r)r.textContent=a[1];})();
+
+(()=>{const S=["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+const CITIES=[["Manila, Philippines",14.5995,120.9842,"Asia/Manila"],["Quezon City, Philippines",14.676,121.0437,"Asia/Manila"],["Makati, Philippines",14.5547,121.0244,"Asia/Manila"],["Pasig, Philippines",14.5764,121.0851,"Asia/Manila"],["Caloocan, Philippines",14.6507,120.9676,"Asia/Manila"],["Antipolo, Philippines",14.5864,121.176,"Asia/Manila"],["Cavite City, Philippines",14.4791,120.897,"Asia/Manila"],["Batangas City, Philippines",13.7565,121.0583,"Asia/Manila"],["Lucena, Philippines",13.9414,121.6234,"Asia/Manila"],["San Fernando, Pampanga, Philippines",15.0286,120.6898,"Asia/Manila"],["Angeles, Philippines",15.145,120.5887,"Asia/Manila"],["Olongapo, Philippines",14.8292,120.2828,"Asia/Manila"],["Malolos, Philippines",14.8433,120.8114,"Asia/Manila"],["Tarlac City, Philippines",15.4755,120.5963,"Asia/Manila"],["Dagupan, Philippines",16.0433,120.3333,"Asia/Manila"],["Baguio, Philippines",16.4023,120.596,"Asia/Manila"],["Laoag, Philippines",18.1987,120.5936,"Asia/Manila"],["Tuguegarao, Philippines",17.6132,121.727,"Asia/Manila"],["Cabanatuan, Philippines",15.4865,120.9667,"Asia/Manila"],["Naga, Philippines",13.6218,123.1948,"Asia/Manila"],["Legazpi, Philippines",13.1391,123.7438,"Asia/Manila"],["Puerto Princesa, Philippines",9.7392,118.7353,"Asia/Manila"],["Iloilo City, Philippines",10.7202,122.5621,"Asia/Manila"],["Bacolod, Philippines",10.6765,122.9509,"Asia/Manila"],["Cebu City, Philippines",10.3157,123.8854,"Asia/Manila"],["Lapu-Lapu, Philippines",10.3103,123.9494,"Asia/Manila"],["Dumaguete, Philippines",9.3068,123.3054,"Asia/Manila"],["Tacloban, Philippines",11.2444,125.0039,"Asia/Manila"],["Tagbilaran, Philippines",9.6496,123.8547,"Asia/Manila"],["Cagayan de Oro, Philippines",8.4542,124.6319,"Asia/Manila"],["Iligan, Philippines",8.228,124.2452,"Asia/Manila"],["Davao City, Philippines",7.1907,125.4553,"Asia/Manila"],["General Santos, Philippines",6.1164,125.1716,"Asia/Manila"],["Zamboanga City, Philippines",6.9214,122.079,"Asia/Manila"],["Butuan, Philippines",8.9475,125.5406,"Asia/Manila"],["Cotabato City, Philippines",7.2236,124.2464,"Asia/Manila"],["Tokyo, Japan",35.6762,139.6503,"Asia/Tokyo"],["Osaka, Japan",34.6937,135.5023,"Asia/Tokyo"],["Seoul, South Korea",37.5665,126.978,"Asia/Seoul"],["Beijing, China",39.9042,116.4074,"Asia/Shanghai"],["Shanghai, China",31.2304,121.4737,"Asia/Shanghai"],["Hong Kong",22.3193,114.1694,"Asia/Hong_Kong"],["Taipei, Taiwan",25.033,121.5654,"Asia/Taipei"],["Singapore",1.3521,103.8198,"Asia/Singapore"],["Kuala Lumpur, Malaysia",3.139,101.6869,"Asia/Kuala_Lumpur"],["Jakarta, Indonesia",-6.2088,106.8456,"Asia/Jakarta"],["Bali (Denpasar), Indonesia",-8.6705,115.2126,"Asia/Makassar"],["Bangkok, Thailand",13.7563,100.5018,"Asia/Bangkok"],["Ho Chi Minh City, Vietnam",10.8231,106.6297,"Asia/Ho_Chi_Minh"],["Hanoi, Vietnam",21.0278,105.8342,"Asia/Bangkok"],["Mumbai, India",19.076,72.8777,"Asia/Kolkata"],["Delhi, India",28.7041,77.1025,"Asia/Kolkata"],["Bangalore, India",12.9716,77.5946,"Asia/Kolkata"],["Karachi, Pakistan",24.8607,67.0011,"Asia/Karachi"],["Dhaka, Bangladesh",23.8103,90.4125,"Asia/Dhaka"],["Dubai, UAE",25.2048,55.2708,"Asia/Dubai"],["Riyadh, Saudi Arabia",24.7136,46.6753,"Asia/Riyadh"],["Doha, Qatar",25.2854,51.531,"Asia/Qatar"],["Kuwait City, Kuwait",29.3759,47.9774,"Asia/Kuwait"],["Tel Aviv, Israel",32.0853,34.7818,"Asia/Jerusalem"],["Istanbul, Turkey",41.0082,28.9784,"Europe/Istanbul"],["Cairo, Egypt",30.0444,31.2357,"Africa/Cairo"],["Lagos, Nigeria",6.5244,3.3792,"Africa/Lagos"],["Nairobi, Kenya",-1.2921,36.8219,"Africa/Nairobi"],["Johannesburg, South Africa",-26.2041,28.0473,"Africa/Johannesburg"],["London, UK",51.5074,-0.1278,"Europe/London"],["Dublin, Ireland",53.3498,-6.2603,"Europe/Dublin"],["Paris, France",48.8566,2.3522,"Europe/Paris"],["Madrid, Spain",40.4168,-3.7038,"Europe/Madrid"],["Barcelona, Spain",41.3874,2.1686,"Europe/Madrid"],["Lisbon, Portugal",38.7223,-9.1393,"Europe/Lisbon"],["Rome, Italy",41.9028,12.4964,"Europe/Rome"],["Milan, Italy",45.4642,9.19,"Europe/Rome"],["Berlin, Germany",52.52,13.405,"Europe/Berlin"],["Munich, Germany",48.1351,11.582,"Europe/Berlin"],["Amsterdam, Netherlands",52.3676,4.9041,"Europe/Amsterdam"],["Brussels, Belgium",50.8503,4.3517,"Europe/Brussels"],["Zurich, Switzerland",47.3769,8.5417,"Europe/Zurich"],["Vienna, Austria",48.2082,16.3738,"Europe/Vienna"],["Stockholm, Sweden",59.3293,18.0686,"Europe/Stockholm"],["Oslo, Norway",59.9139,10.7522,"Europe/Oslo"],["Copenhagen, Denmark",55.6761,12.5683,"Europe/Copenhagen"],["Warsaw, Poland",52.2297,21.0122,"Europe/Warsaw"],["Athens, Greece",37.9838,23.7275,"Europe/Athens"],["Moscow, Russia",55.7558,37.6173,"Europe/Moscow"],["New York, USA",40.7128,-74.006,"America/New_York"],["Boston, USA",42.3601,-71.0589,"America/New_York"],["Washington DC, USA",38.9072,-77.0369,"America/New_York"],["Miami, USA",25.7617,-80.1918,"America/New_York"],["Atlanta, USA",33.749,-84.388,"America/New_York"],["Chicago, USA",41.8781,-87.6298,"America/Chicago"],["Houston, USA",29.7604,-95.3698,"America/Chicago"],["Dallas, USA",32.7767,-96.797,"America/Chicago"],["Denver, USA",39.7392,-104.9903,"America/Denver"],["Phoenix, USA",33.4484,-112.074,"America/Phoenix"],["Las Vegas, USA",36.1699,-115.1398,"America/Los_Angeles"],["Los Angeles, USA",34.0522,-118.2437,"America/Los_Angeles"],["San Francisco, USA",37.7749,-122.4194,"America/Los_Angeles"],["San Diego, USA",32.7157,-117.1611,"America/Los_Angeles"],["Seattle, USA",47.6062,-122.3321,"America/Los_Angeles"],["Honolulu, USA",21.3069,-157.8583,"Pacific/Honolulu"],["Anchorage, USA",61.2181,-149.9003,"America/Anchorage"],["Toronto, Canada",43.6532,-79.3832,"America/Toronto"],["Vancouver, Canada",49.2827,-123.1207,"America/Vancouver"],["Montreal, Canada",45.5017,-73.5673,"America/Toronto"],["Calgary, Canada",51.0447,-114.0719,"America/Edmonton"],["Mexico City, Mexico",19.4326,-99.1332,"America/Mexico_City"],["Bogota, Colombia",4.711,-74.0721,"America/Bogota"],["Lima, Peru",-12.0464,-77.0428,"America/Lima"],["Santiago, Chile",-33.4489,-70.6693,"America/Santiago"],["Buenos Aires, Argentina",-34.6037,-58.3816,"America/Argentina/Buenos_Aires"],["Sao Paulo, Brazil",-23.5505,-46.6333,"America/Sao_Paulo"],["Rio de Janeiro, Brazil",-22.9068,-43.1729,"America/Sao_Paulo"],["Sydney, Australia",-33.8688,151.2093,"Australia/Sydney"],["Melbourne, Australia",-37.8136,144.9631,"Australia/Melbourne"],["Brisbane, Australia",-27.4698,153.0251,"Australia/Brisbane"],["Perth, Australia",-31.9505,115.8605,"Australia/Perth"],["Auckland, New Zealand",-36.8485,174.7633,"Pacific/Auckland"],["Guam",13.4443,144.7937,"Pacific/Guam"]];
+function tzOffsetMin(tz,utcMs){const f=new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"});
+ const p=Object.fromEntries(f.formatToParts(new Date(utcMs)).map(x=>[x.type,x.value]));return (Date.UTC(+p.year,p.month-1,+p.day,+p.hour,+p.minute,+p.second)-utcMs)/60000}
+function localToUtc(y,mo,d,h,mi,tz,fixedOff){const guess=Date.UTC(y,mo-1,d,h,mi);if(fixedOff!=null)return guess-fixedOff*60000;let off=tzOffsetMin(tz,guess);let u=guess-off*60000;off=tzOffsetMin(tz,u);return guess-off*60000}
+function natal(Astronomy,utcMs,lat,lon){const date=new Date(utcMs);
+ const sun=Astronomy.SunPosition(date).elon;const moon=Astronomy.EclipticGeoMoon(date).lon;
+ const gast=Astronomy.SiderealTime(date);const ramc=((gast*15+lon)%360+360)%360;
+ const t=Astronomy.MakeTime(date);const eps=23.4392911-0.0130042*(t.tt/36525);const r=Math.PI/180;
+ let asc=Math.atan2(Math.cos(ramc*r),-(Math.sin(ramc*r)*Math.cos(eps*r)+Math.tan(lat*r)*Math.sin(eps*r)))/r;asc=(asc+360)%360;
+ return {sun,moon,asc}}
+
+
+const EL=["fire","earth","air","water"],el=i=>EL[i%4];
+const HUE={Aries:[8,35],Taurus:[95,140],Gemini:[50,190],Cancer:[205,230],Leo:[38,20],Virgo:[110,35],Libra:[335,210],Scorpio:[290,345],Sagittarius:[20,265],Capricorn:[150,30],Aquarius:[190,250],Pisces:[255,168]};
+const Q={Aries:"courage",Taurus:"steadiness",Gemini:"curiosity",Cancer:"care",Leo:"warmth",Virgo:"clarity",Libra:"balance",Scorpio:"depth",Sagittarius:"freedom",Capricorn:"discipline",Aquarius:"originality",Pisces:"intuition"};
+const MUS={fire:{bpm:96,lp:2300,wave:"triangle",shift:2,d:"bright, upbeat"},earth:{bpm:62,lp:800,wave:"sine",shift:-5,d:"slow, warm"},air:{bpm:86,lp:2800,wave:"triangle",shift:7,d:"light, airy"},water:{bpm:72,lp:1100,wave:"sine",shift:0,d:"dreamy, flowing"}};
+const MOON={fire:3,earth:-2,air:5,water:0},BELL={fire:0,earth:-5,air:2,water:-3};
+const H=["I lead my life with {q}.","Money and self-worth grow through my {q}.","My words and ideas carry {q}.","My home is filled with {q}.","My creativity shines with {q}.","My daily routines are guided by {q}. Every stand-up is a gift to my body.","The right people and clients meet my {q} with kindness.","I transform and grow through {q}.","My path of learning opens with {q}.","My career rises through my {q}.","My friends and teams gather around my {q}.","Rest restores my {q}."];
+const HN=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+const HA=["You, identity","Money, self-worth","Communication, learning","Home, family","Romance, creativity","Work, routines, health","Partners, clients","Shared money, change","Travel, beliefs","Career, reputation","Friends, teams","Rest, hidden work"];
+const GREET={woman:"Good morning, goddess",man:"Good morning, king",nonbinary:"Good morning, star","":"Good morning"};
+let P=null;try{P=JSON.parse(localStorage.getItem("cosmic"))}catch(e){}
+const $=id=>document.getElementById(id),dark=matchMedia("(prefers-color-scheme: dark)");
+const GEO={};CITIES.forEach(c=>GEO[c[0].toLowerCase()]=c);
+const fillList=extra=>{$("cityList").innerHTML=[...extra,...CITIES].slice(0,200).map(c=>`<option value="${c[0]}"></option>`).join("")};fillList([]);
+async function geocode(q){try{const r=await fetch("https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&name="+encodeURIComponent(q.split(",")[0].trim()));const j=await r.json();
+ return (j.results||[]).map(x=>{const c=[[x.name,x.admin1,x.country].filter(Boolean).join(", "),x.latitude,x.longitude,x.timezone];GEO[c[0].toLowerCase()]=c;return c})}catch(e){return null}}
+let gT=null;$("bCity").addEventListener("input",()=>{clearTimeout(gT);const q=$("bCity").value.trim();if(q.length<2)return;gT=setTimeout(async()=>{const r=await geocode(q);if(r&&r.length)fillList(r)},350)});
+const koiG=()=>document.querySelectorAll("#koi > g");
+function koiPaint(light,dk){const g=koiG();if(g.length<2)return;[[g[0],light,dk],[g[1],dk,light]].forEach(([el,body,spot])=>{el.querySelectorAll("path,ellipse").forEach(x=>x.setAttribute("fill",body));el.querySelector("circle").setAttribute("fill",spot)})}
+function paint(){const r=document.documentElement.style;if(!P){["--accent","--seafoam","--rose","--powder","--hillA","--hillB","--hillC","--sky1","--sky2","--sky3"].forEach(v=>r.removeProperty(v));koiPaint("#FBF6EE","#2F2C42");return}
+ const [a,b]=HUE[P.sun],m=HUE[P.moon][0],h=HUE[P.rise][0],D=dark.matches;
+ r.setProperty("--accent",`hsl(${a} ${D?70:42}% ${D?78:62}%)`);r.setProperty("--seafoam",`hsl(${b} ${D?50:38}% ${D?70:60}%)`);
+ r.setProperty("--rose",`hsl(${m} ${D?75:62}% ${D?80:76}%)`);r.setProperty("--powder",`hsl(${(m+40)%360} ${D?60:50}% ${D?78:74}%)`);
+ r.setProperty("--sky1",`hsl(${b} ${D?30:45}% ${D?15:88}%)`);r.setProperty("--sky2",`hsl(${m} ${D?28:55}% ${D?23:90}%)`);r.setProperty("--sky3",`hsl(${h} ${D?24:40}% ${D?31:93}%)`);
+ koiPaint(`hsl(${m} 70% 92%)`,`hsl(${a} 45% 24%)`);
+ r.setProperty("--hillA",`hsl(${h} ${D?16:26}% ${D?22:74}%)`);r.setProperty("--hillB",`hsl(${h} ${D?16:24}% ${D?17:66}%)`);r.setProperty("--hillC",`hsl(${h} ${D?16:22}% ${D?12:56}%)`)}
+dark.addEventListener&&dark.addEventListener("change",paint);
+const deg=x=>`${Math.floor(x%30)}°`;
+function showChart(){if(!P||!P.pos){$("chartOut").hidden=true;return}$("chartOut").hidden=false;const p=P.pos;
+ $("big3").innerHTML=`<span><small>Sun</small>☉ ${P.sun} ${deg(p.sun)}</span><span><small>Moon</small>☽ ${P.moon} ${deg(p.moon)}</span>`+(P.noTime?`<span><small>Rising</small>Needs birth time</span>`:`<span><small>Rising</small>↑ ${P.rise} ${deg(p.asc)}</span>`);
+ const ri=S.indexOf(P.rise);$("houses").innerHTML=HN.map((n,i)=>`<div><b>${n}</b>${S[(ri+i)%12]}<br><span class="sub">${HA[i]}</span></div>`).join("")}
+function apply(){$("cErr").hidden=true;const rh=document.querySelector("#ring h3");
+ if(!P){window.COSMIC=null;document.body.classList.remove("el-fire","el-earth","el-air","el-water");$("cosBadge").textContent="Tap to set up";$("cosSum").textContent="Showing the default theme (Pisces sun, Libra moon, Virgo rising).";paint();showChart();if(rh)rh.textContent="Good morning";return}
+ const e=el(S.indexOf(P.sun)),me=el(S.indexOf(P.moon)),re=el(S.indexOf(P.rise));
+ window.COSMIC={...MUS[e],moon:MOON[me],bell:BELL[re]};paint();showChart();
+
+ document.body.classList.remove("el-fire","el-earth","el-air","el-water");document.body.classList.add("el-"+e);
+ const pts=$("pts");if(!pts.children.length){for(let k=0;k<18;k++){const d=document.createElement("i");d.className="pt";d.style.left=(Math.random()*100)+"%";d.style.top=(e==="earth"?0:40+Math.random()*60)+"%";d.style.animationDuration=(9+Math.random()*10)+"s";d.style.animationDelay=(-Math.random()*15)+"s";pts.appendChild(d)}}
+ pts.querySelectorAll(".pt").forEach(d=>{d.style.top=(e==="earth"?"0%":e==="air"?(20+Math.random()*50)+"%":(55+Math.random()*45)+"%")});
+ $("cosBadge").innerHTML=`<span class="emo pulse2">${{fire:"🔥",earth:"🌿",air:"🌬️",water:"🌊"}[e]}</span> ☉ ${P.sun} · ☽ ${P.moon} · ↑ ${P.rise}`;$("cosDet").open=false;
+ if(window.__music&&window.__music.on()){window.__music.stop();setTimeout(()=>window.__music.start(),1500)}
+ const ri=S.indexOf(P.rise),d=new Date(),day=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5)%12,hs=S[(ri+day)%12];
+ $("affText").textContent=H[day].replace("{q}",Q[hs]);$("affHouse").textContent=`${HN[day]} house · ${hs}`;
+ const rp=document.querySelector("#ring p");if(rp)rp.textContent=$("affText").textContent;if(rh)rh.textContent=GREET[P.gender||""]||"Good morning";
+ $("cosSum").textContent=`${P.sun} sun: ${MUS[e].d} walk music at ${MUS[e].bpm} BPM · ${P.moon} moon: ${me} wake melody · ${P.rise} rising: your colors, houses and hourly bells.`+(P.noTime?" Without a birth time, your houses are counted from your sun sign.":"")}
+function save(){try{localStorage.setItem("cosmic",JSON.stringify(P))}catch(e){}}
+function err(m){$("cErr").textContent=m;$("cErr").hidden=false}
+$("cRead").onclick=async()=>{const dv=$("bDate").value,noT=$("bNoTime").checked,tv=noT?"12:00":$("bTime").value,cn=$("bCity").value.trim();
+ if(!dv)return err("Add your birth date.");if(!tv)return err("Add your birth time, or tick \"I don't know my birth time\".");
+ let lat,lon,tz=null,off=null;let c=GEO[cn.toLowerCase()];
+ if(!c&&cn&&!$("bLat").value){$("cErr").textContent="Looking up "+cn+"…";$("cErr").hidden=false;const r=await geocode(cn);if(r===null)return err("Couldn't look up that city (no internet?). Open \"My city isn't listed\" and enter it manually.");const q=cn.toLowerCase();c=r.find(x=>x[0].toLowerCase().startsWith(q.split(",")[0]))||r[0];if(!c)return err("City not found. Check the spelling or enter it manually.");$("bCity").value=c[0];$("cErr").hidden=true}
+ if(c){lat=c[1];lon=c[2];tz=c[3]}else{lat=parseFloat($("bLat").value);lon=parseFloat($("bLon").value);off=parseFloat($("bOff").value);
+  if([lat,lon,off].some(isNaN)){$("bOther").open=true;return err("Pick a city from the list, or open \"My city isn't listed\" and enter latitude, longitude and UTC offset.")}}
+ const [y,mo,da]=dv.split("-").map(Number),[h,mi]=tv.split(":").map(Number);
+ let u;try{u=localToUtc(y,mo,da,h,mi,tz,off==null?null:off*60)}catch(e){return err("That time zone couldn't be read. Try the manual option.")}
+ const pos=natal(Astronomy,u,lat,lon),sun=S[Math.floor(pos.sun/30)],moon=S[Math.floor(pos.moon/30)],rise=noT?sun:S[Math.floor(pos.asc/30)];
+ P={sun,moon,rise,pos,noTime:noT,gender:$("bGender").value,birth:{date:dv,time:noT?"":tv,city:cn,lat,lon,tz,off}};
+ $("cSun").value=sun;$("cMoon").value=moon;$("cRise").value=rise;save();apply()};
+$("cApply").onclick=()=>{P={...(P||{}),sun:$("cSun").value,moon:$("cMoon").value,rise:$("cRise").value,gender:$("bGender").value};if(P.pos&&!P.noTime){}save();apply()};
+$("cReset").onclick=()=>{P=null;try{localStorage.removeItem("cosmic")}catch(e){}location.reload()};
+if(P){$("cSun").value=P.sun;$("cMoon").value=P.moon;$("cRise").value=P.rise;if(P.birth){$("bDate").value=P.birth.date||"";$("bTime").value=P.birth.time||"";$("bCity").value=P.birth.city||"";$("bNoTime").checked=!!P.noTime}$("bGender").value=P.gender||""}
+else{$("cSun").value="Pisces";$("cMoon").value="Libra";$("cRise").value="Virgo"}
+apply();})();
+
+
+(()=>{const $=id=>document.getElementById(id),K=d=>d.toISOString?new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10):d;
+let H={};try{H=JSON.parse(localStorage.getItem("hist"))||{}}catch(e){}
+let sh=null;try{sh=JSON.parse(localStorage.getItem("shiftOn"))}catch(e){}
+const day=k=>H[k]||(H[k]={shift:0,tasks:0,walks:0,walkMin:0,sleep:0});
+const saveH=()=>{try{localStorage.setItem("hist",JSON.stringify(H))}catch(e){}};
+const hm=m=>`${Math.floor(m/60)}h ${String(Math.floor(m%60)).padStart(2,"0")}m`;
+window.__log=(kind,v)=>{const d=day(K(new Date()));
+ if(kind==="walk"){d.walkMin+=v/60;if(v>=120)d.walks++}
+ if(kind==="task")d.tasks=Math.max(0,d.tasks+v);
+ if(kind==="wake"){let b=null;try{b=+localStorage.getItem("bedAt");localStorage.removeItem("bedAt")}catch(e){}if(b){const m=(Date.now()-b)/6e4;if(m>60&&m<16*60)d.sleep=m}}
+ saveH();render()};
+function shiftMinToday(){const d=day(K(new Date()));return d.shift+(sh?(Date.now()-sh)/6e4:0)}
+$("shBtn").onclick=()=>{if(sh){const m=(Date.now()-sh)/6e4;day(K(new Date(sh))).shift+=m;sh=null;try{localStorage.removeItem("shiftOn")}catch(e){}saveH()}else{sh=Date.now();try{localStorage.setItem("shiftOn",sh)}catch(e){}}render()};
+let metric="shift";document.querySelectorAll(".dtabs button").forEach(b=>b.onclick=()=>{metric=b.dataset.m;document.querySelectorAll(".dtabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+function render(){const k=K(new Date()),d=day(k);
+ $("tProd").textContent=hm(shiftMinToday());$("tTask").textContent=d.tasks;$("tWalk").textContent=d.walks;$("tWalkS").textContent=`walks · ${Math.round(d.walkMin)} min today`;
+ const y=new Date();y.setDate(y.getDate());const sl=d.sleep||day(K(new Date(Date.now()-864e5))).sleep;$("tSleep").textContent=sl?hm(sl):"—";$("tSleepS").textContent=sl?"last night":"use the wake alarm to track";
+ $("shBtn").textContent=sh?"End shift":"Start shift";$("shState").textContent=sh?"On shift since "+new Date(sh).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):"Not on shift";$("shTimer").textContent=sh?hm((Date.now()-sh)/6e4):hm(d.shift);
+ const days=[...Array(7)].map((_,i)=>{const t=new Date();t.setDate(t.getDate()-6+i);return t}),conv={shift:m=>m/60,tasks:v=>v,walkMin:v=>v,sleep:m=>m/60},unit={shift:"h",tasks:"",walkMin:" min",sleep:"h"};
+ const vals=days.map(t=>{const x=day(K(t));let v=x[metric];if(metric==="shift"&&K(t)===k)v=shiftMinToday();return conv[metric](v||0)});
+ const W=420,Hh=130,pl=30,pb=20,pt=12,mx=Math.max(1,...vals),top=metric==="shift"||metric==="sleep"?Math.max(4,Math.ceil(mx)):Math.max(5,Math.ceil(mx/5)*5),bw=(W-pl-8)/7;
+ let g=`<line x1="${pl}" x2="${W}" y1="${Hh-pb}" y2="${Hh-pb}" stroke="var(--line)"/><line x1="${pl}" x2="${W}" y1="${pt}" y2="${pt}" stroke="var(--line)" stroke-dasharray="2 4"/><text x="${pl-5}" y="${pt+3}" text-anchor="end">${top}${unit[metric].trim()}</text><text x="${pl-5}" y="${Hh-pb+3}" text-anchor="end">0</text>`;
+ vals.forEach((v,i)=>{const h=v/top*(Hh-pb-pt),x=pl+i*bw+bw*.2,w=bw*.6,last=i===6;
+  g+=`<rect x="${x}" y="${Hh-pb-h}" width="${w}" height="${Math.max(h,0)}" rx="4" fill="${last?"var(--accent)":"color-mix(in srgb,var(--accent) 45%,transparent)"}"><title>${days[i].toLocaleDateString([],{weekday:"long"})}: ${(Math.round(v*10)/10)}${unit[metric]}</title></rect>`;
+  g+=`<text x="${x+w/2}" y="${Hh-5}" text-anchor="middle">${days[i].toLocaleDateString([],{weekday:"short"})}</text>`;
+  if(last&&v>0)g+=`<text x="${x+w/2}" y="${Hh-pb-h-4}" text-anchor="middle" style="fill:var(--ink)">${Math.round(v*10)/10}${unit[metric]}</text>`});
+ $("wk").innerHTML=g}
+function tick(){const n=new Date();{const pt=new Intl.DateTimeFormat([],{hour:"numeric",minute:"2-digit"}).formatToParts(n),hm=pt.filter(x=>x.type!=="dayPeriod").map(x=>x.value).join("").trim(),dp=(pt.find(x=>x.type==="dayPeriod")||{}).value||"";$("lclock").innerHTML=hm+(dp?`<small>${dp}</small>`:"")}$("ldate").textContent=n.toLocaleDateString([],{weekday:"long",month:"long",day:"numeric"})+" · "+Intl.DateTimeFormat().resolvedOptions().timeZone.replace("_"," ");
+ if(sh){$("shTimer").textContent=hm((Date.now()-sh)/6e4);$("tProd").textContent=hm(shiftMinToday())}}
+tick();setInterval(tick,1000);setInterval(render,60000);render();
+})();
+
+
+(()=>{const $=id=>document.getElementById(id);
+const SP="https://open.spotify.com/embed/playlist/679wCT6dVMDBxrYa5NcrXL?utm_source=generator";
+let SPC=null,spReady=false,wantPlay=false,spPlaying=false;
+window.onSpotifyIframeApiReady=API=>{API.createController($("spotWrap"),{uri:(()=>{try{return localStorage.getItem("spPL")||"spotify:playlist:679wCT6dVMDBxrYa5NcrXL"}catch(e){return "spotify:playlist:679wCT6dVMDBxrYa5NcrXL"}})(),width:"100%",height:352},c=>{SPC=c;spReady=true;window.__embedCtl=c;
+ c.addListener("playback_update",e=>{spPlaying=!e.data.isPaused;$("focusSec").classList.toggle("playing",spPlaying);document.querySelector("#focusSec .playbtn").textContent=spPlaying?"❚❚":"▶"});
+ c.addListener("ready",()=>{if(wantPlay){c.play();wantPlay=false}})})};
+function loadSp(){if(document.getElementById("spapi"))return;const sc=document.createElement("script");sc.id="spapi";sc.src="https://open.spotify.com/embed/iframe-api/v1";sc.async=true;sc.onerror=()=>{$("spotWrap").innerHTML='<p class="sub">Spotify couldn\'t load. Use Open in Spotify below.</p>'};document.head.appendChild(sc)}
+const pb=document.querySelector("#focusSec .playbtn");
+pb.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();$("focusSec").open=true;if(SPC){SPC.togglePlay()}else{wantPlay=true;loadSp()}});
+$("focusSec").addEventListener("toggle",()=>{if($("focusSec").open)loadSp()});
+window.__focus={pauseForWalk(){if(SPC&&spPlaying)SPC.pause()}};
+function pills(){const n=new Date(),row=[];const ic=h=>h>=6&&h<11?"☀️":h>=11&&h<17?"🌤️":h>=17&&h<20?"🌆":"🌙";
+ let x=new Date(n);x.setSeconds(0,0);x.setMinutes(46);if(x<=n)x.setHours(x.getHours()+1);
+ row.push(`<div class="pill now"><small>Now</small><span class="emo bob">🚶</span><b>${(JSON.parse(localStorage.getItem("walk")||"{}").count)||0}</b><small>walks</small></div>`);
+ for(let i=0;i<6;i++){const t=new Date(x.getTime()+i*36e5);row.push(`<div class="pill"><small>${t.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}</small><span class="emo float" style="animation-delay:-${i*.4}s">${ic(t.getHours())}</span><b>2m</b><small>walk</small></div>`)}
+ $("pillrow").innerHTML=row.join("");const h=n.getHours();$("heroEmo").textContent=ic(h)}
+function hero(){try{const w=JSON.parse(localStorage.getItem("walk")||"{}");$("hWalks").textContent=`${w.day===new Date().toDateString()?w.count||0:0} walks`}catch(e){}
+ const t=document.querySelectorAll("#list li").length,d=document.querySelectorAll("#list li.x").length;$("hTasks").textContent=`${d}/${t} tasks`;$("tasksV").textContent=`${d}/${t}`;
+ $("sleepV").textContent=$("sstat")?$("sstat").textContent.replace("Alarm set for ","⏰ ").replace(/ · in.*/,"").replace("No alarm set","Off"):"—"}
+pills();hero();setInterval(pills,60000);setInterval(hero,2000);
+const go=(id,open)=>{const el=$(id);if(open&&el.tagName==="DETAILS")el.open=true;el.scrollIntoView({behavior:"smooth",block:"start"})};
+$("dHome").onclick=()=>scrollTo({top:0,behavior:"smooth"});$("dWalk").onclick=()=>{go("walkbox");if($("wgo").textContent==="Walk")$("wgo").click()};
+$("dAdd").onclick=()=>{go("tasksW",true);setTimeout(()=>$("newTask").focus(),350)};$("dMusic").onclick=()=>go("focusSec",true);$("dSleep").onclick=()=>go("sleepbox",true);
+})();
+
+(()=>{const $=id=>document.getElementById(id);
+const CID="027feaeed25a4f7183cb83fa6a7d20b7",REDIR="https://naekitakadoportfolio.github.io/koi-cosmos/",DEF="spotify:playlist:679wCT6dVMDBxrYa5NcrXL";let PL=(()=>{try{return localStorage.getItem("spPL")||DEF}catch(e){return DEF}})();
+const SCOPES="streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative";
+const LS={get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const st=m=>$("spStatus").textContent=m;
+const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+async function login(){const v=b64u(crypto.getRandomValues(new Uint8Array(48)));LS.set("spVerifier",v);const ch=b64u(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));
+ location.href="https://accounts.spotify.com/authorize?"+new URLSearchParams({client_id:CID,response_type:"code",redirect_uri:REDIR,code_challenge_method:"S256",code_challenge:ch,scope:SCOPES})}
+async function tokenReq(body){const r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({client_id:CID,...body})});const j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||"token");
+ const t={access:j.access_token,refresh:j.refresh_token||(LS.get("spTok")||{}).refresh,exp:Date.now()+(j.expires_in-60)*1000};LS.set("spTok",t);return t}
+async function token(){let t=LS.get("spTok");if(!t)return null;if(Date.now()>t.exp){try{t=await tokenReq({grant_type:"refresh_token",refresh_token:t.refresh})}catch(e){LS.del("spTok");ui();st("Your Spotify session ended. Tap Connect again.");return null}}return t.access}
+async function api(path,opt={}){const tk=await token();if(!tk)throw new Error("not connected");const r=await fetch("https://api.spotify.com/v1"+path,{...opt,headers:{Authorization:"Bearer "+tk,"Content-Type":"application/json"}});if(r.status===401){LS.del("spTok");ui()}if(!r.ok&&r.status!==204){let m="";try{m=(await r.json()).error.message}catch(e){}throw new Error(m||("HTTP "+r.status))}return r}
+let player=null,dev=null,state=null,started=false,pausedByWalk=false;
+function ui(){const on=!!LS.get("spTok");$("spConnect").hidden=on;$("spLogout").hidden=!on;$("spCtl").hidden=!on;$("spotWrap").hidden=on;$("spEmbedNote").hidden=on;if(!on)$("spNow").hidden=true}
+function sdk(){if(player||document.getElementById("spsdk"))return;window.onSpotifyWebPlaybackSDKReady=()=>{player=new Spotify.Player({name:"Koi & Cosmos",getOAuthToken:cb=>token().then(t=>t&&cb(t)),volume:.7});
+ player.addListener("ready",({device_id})=>{dev=device_id;st("Connected. Tap ▶ to play your focus playlist.")});
+ player.addListener("not_ready",()=>st("Spotify player went offline. Refresh the app."));
+ player.addListener("account_error",()=>st("In-app playback needs Spotify Premium, and your account must be listed in the app's Spotify User Management."));
+ player.addListener("authentication_error",()=>{LS.del("spTok");ui();st("Please connect Spotify again.")});
+ player.addListener("initialization_error",()=>{st("This browser can't play Spotify in-app (Spotify doesn't support phones and tablets for this). Using the Spotify panel instead.");$("spotWrap").hidden=false;$("spCtl").hidden=true});
+ player.addListener("player_state_changed",s=>{state=s;if(!s)return;const tr=s.track_window.current_track;$("spNow").hidden=false;$("spTitle").textContent=tr.name;$("spArtist").textContent=tr.artists.map(a=>a.name).join(", ");
+  const img=(tr.album.images||[]).slice(-1)[0];if(img)$("spArt").src=img.url;$("spToggle").textContent=s.paused?"▶ Play":"❚❚ Pause";
+  document.querySelector("#focusSec .playbtn").textContent=s.paused?"▶":"❚❚";$("focusSec").classList.toggle("playing",!s.paused);$("spProg").style.width=(s.position/s.duration*100)+"%"});
+ player.connect()};const sc=document.createElement("script");sc.id="spsdk";sc.src="https://sdk.scdn.co/spotify-player.js";sc.onerror=()=>st("Couldn't load the Spotify player. Check your internet.");document.head.appendChild(sc)}
+setInterval(async()=>{if(player&&state&&!state.paused){const s=await player.getCurrentState();if(s)$("spProg").style.width=(s.position/s.duration*100)+"%"}},1000);
+async function toggle(){if(!player||!dev){st("Still connecting to Spotify…");return}try{player.activateElement&&player.activateElement()}catch(e){}
+ if(!started){try{await api("/me/player/play?device_id="+dev,{method:"PUT",body:JSON.stringify({context_uri:PL})});started=true}catch(e){st("Couldn't start playback: "+e.message)}return}player.togglePlay()}
+
+function toUri(t){t=t.trim();let m=t.match(/(playlist|album|artist)[\/:]([A-Za-z0-9]{22})/);return m?`spotify:${m[1]}:${m[2]}`:null}
+function setPL(uri,label){PL=uri;try{localStorage.setItem("spPL",uri)}catch(e){}const sel=$("spPick");if(![...sel.options].some(o=>o.value===uri)){const o=document.createElement("option");o.value=uri;o.textContent=label||"Pasted link";sel.appendChild(o)}sel.value=uri;
+ started=false;if(player&&dev){api("/me/player/play?device_id="+dev,{method:"PUT",body:JSON.stringify({context_uri:PL})}).then(()=>{started=true;st("Now playing: "+(label||"your playlist"))}).catch(e=>st("Couldn't play that: "+e.message))}
+ else if(window.__embedCtl){window.__embedCtl.loadUri(PL);st("Loaded in the Spotify panel.")}}
+async function loadMine(){try{const r=await api("/me/playlists?limit=50");const j=await r.json();const sel=$("spPick");const og=document.createElement("optgroup");og.label="Your playlists";
+ (j.items||[]).filter(Boolean).forEach(p=>{const o=document.createElement("option");o.value=p.uri;o.textContent=p.name;og.appendChild(o)});sel.appendChild(og);sel.value=PL}catch(e){if(/scope|Insufficient/i.test(e.message))st("Tap Disconnect, then Connect again to see your own playlists.")}}
+$("spPick").onchange=()=>setPL($("spPick").value,$("spPick").selectedOptions[0].textContent);
+$("spPaste").onsubmit=e=>{e.preventDefault();const u=toUri($("spLink").value);if(!u){st("That doesn't look like a Spotify playlist, album or artist link.");return}$("spLink").value="";setPL(u,"Pasted "+u.split(":")[1])};
+
+const esc2=t=>String(t||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+async function playUris(body,label){if(!player||!dev){st("Connect Spotify Premium to play songs here.");return}
+ try{await api("/me/player/play?device_id="+dev,{method:"PUT",body:JSON.stringify(body)});started=true;st("Now playing: "+label)}catch(e){st("Couldn't play that: "+e.message)}}
+async function search(q){if(!LS.get("spTok")){st("Connect Spotify Premium to search songs.");return}const R=$("spRes");R.hidden=false;R.innerHTML='<p class="sub">Searching…</p>';
+ try{const r=await api("/search?"+new URLSearchParams({q,type:"track,playlist",limit:"8"}));const j=await r.json();
+  const tr=(j.tracks&&j.tracks.items||[]).filter(Boolean),pl=(j.playlists&&j.playlists.items||[]).filter(Boolean);
+  if(!tr.length&&!pl.length){R.innerHTML='<p class="sub">No results. Try another spelling.</p>';return}
+  const img=a=>{const x=(a||[]).slice(-1)[0];return x?x.url:""};
+  R.innerHTML=(tr.length?'<h3>Songs</h3>':'')+tr.map((t,i)=>`<button type="button" class="spitem" data-k="t${i}"><img alt="" src="${esc2(img(t.album.images))}"><span><b>${esc2(t.name)}</b><small>${esc2(t.artists.map(a=>a.name).join(", "))}</small></span><span class="q" data-q="t${i}" title="Add to queue">＋ Queue</span></button>`).join("")
+   +(pl.length?'<h3>Playlists</h3>':'')+pl.map((p,i)=>`<button type="button" class="spitem" data-k="p${i}"><img alt="" src="${esc2(img(p.images))}"><span><b>${esc2(p.name)}</b><small>${esc2(p.owner&&p.owner.display_name||"Playlist")}</small></span><span class="q">Play</span></button>`).join("");
+  R.querySelectorAll(".spitem").forEach(b=>b.onclick=async ev=>{const k=b.dataset.k,i=+k.slice(1);
+   if(k[0]==="t"){const t=tr[i];if(ev.target.dataset.q){try{await api("/me/player/queue?"+new URLSearchParams({uri:t.uri,device_id:dev||""}),{method:"POST"});st("Added to queue: "+t.name)}catch(e){st("Couldn't queue: "+e.message)}return}
+    playUris({uris:[t.uri,...tr.filter((_,j)=>j!==i).map(x=>x.uri)]},t.name+" · "+t.artists[0].name)}
+   else{const p=pl[i];setPL(p.uri,p.name)}})}
+ catch(e){R.innerHTML='<p class="sub">Search failed: '+esc2(e.message)+'</p>'}}
+$("spSearch").onsubmit=e=>{e.preventDefault();const q=$("spQ").value.trim();if(q)search(q)};
+$("spConnect").onclick=login;$("spLogout").onclick=()=>{LS.del("spTok");try{player&&player.disconnect()}catch(e){}player=null;dev=null;started=false;ui();st("Disconnected.")};
+$("spToggle").onclick=toggle;$("spNext").onclick=()=>player&&player.nextTrack();$("spPrev").onclick=()=>player&&player.previousTrack();
+document.querySelector("#focusSec .playbtn").addEventListener("click",e=>{if(!LS.get("spTok"))return;e.preventDefault();e.stopImmediatePropagation();$("focusSec").open=true;toggle()},true);
+const old=window.__focus||{};window.__focus={pauseForWalk(){if(player&&state&&!state.paused){player.pause();pausedByWalk=true}else if(old.pauseForWalk)old.pauseForWalk()},resume(){if(player&&pausedByWalk){player.resume();pausedByWalk=false}}};
+(async()=>{const q=new URLSearchParams(location.search);if(q.get("code")){try{await tokenReq({grant_type:"authorization_code",code:q.get("code"),redirect_uri:REDIR,code_verifier:LS.get("spVerifier")});LS.del("spVerifier");st("Spotify connected!");$("focusSec").open=true;setTimeout(()=>$("focusSec").scrollIntoView({behavior:"smooth"}),400)}catch(e){st("Spotify login failed: "+e.message)}history.replaceState(null,"",location.pathname)}
+ else if(q.get("error")){st("Spotify login was cancelled.");history.replaceState(null,"",location.pathname)}
+ ui();if(LS.get("spTok")){sdk();loadMine()}})();
+})();
+
+(()=>{const $=id=>document.getElementById(id);let dp=null;
+const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const ua=navigator.userAgent,isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),isSamsung=/SamsungBrowser/.test(ua),isChrome=/Chrome\//.test(ua)&&!/Edg\/|OPR\/|SamsungBrowser/.test(ua),isAndroid=/Android/.test(ua);
+function help(){let h;
+ if(isIOS)h='<ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (square with an arrow).</li><li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol>';
+ else if(isSamsung)h='<ol><li>Tap the <b>menu ☰</b> at the bottom.</li><li>Tap <b>Add page to</b> → <b>Apps screen</b> (or <b>Install</b> if shown).</li><li>Tip: installing from <b>Chrome</b> gives the best app experience.</li></ol>';
+ else if(isAndroid)h='<ol><li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> (top right) → <b>Install app</b>. If you only see "Add to Home screen", tap it and choose <b>Install</b>.</li><li>If you already have an old shortcut that opens in the browser, delete it first, then install again.</li></ol>';
+ else h='<ol><li>Use <b>Chrome</b> or <b>Edge</b>.</li><li>Click the <b>install icon</b> at the right of the address bar, or open the menu → <b>Install Koi &amp; Cosmos</b>.</li></ol>';
+ $("ihBody").innerHTML=h;$("instHelp").hidden=false}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;if(!standalone())$("instBtn").hidden=false});
+window.addEventListener("appinstalled",()=>{$("instBtn").hidden=true;dp=null});
+if(!standalone())$("instBtn").hidden=false;
+$("instBtn").onclick=async()=>{if(dp){dp.prompt();const r=await dp.userChoice;if(r.outcome==="accepted")$("instBtn").hidden=true;dp=null}else help()};
+$("ihClose").onclick=()=>$("instHelp").hidden=true;$("instHelp").onclick=e=>{if(e.target.id==="instHelp")$("instHelp").hidden=true};
+})();
+</script>
+<p style="text-align:center;font-size:12px;opacity:.75;margin:18px 0 28px"><a href="privacy.html" style="color:inherit">Privacy</a> · Your data stays on this device</p>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js")</script>
+</body></html>
